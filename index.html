@@ -6,9 +6,9 @@
     <title>Sofia | Buuh - Portfólio Estelar</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    
+    <!-- MODEL VIEWER EM VEZ DO THREE.JS -->
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
 
     <style>
         :root {
@@ -165,8 +165,13 @@
             border-radius: 25px; overflow: hidden; position: relative; display: flex; flex-direction: column;
         }
         .visual-entry h4 { font-family: 'Playfair Display', serif; color: var(--gold); font-size: 1.5rem; margin-bottom: 5px; }
-        .model-viewport { width: 100%; height: 300px; background: rgba(0,0,0,0.5); cursor: grab; }
-        .model-viewport:active { cursor: grabbing; }
+        
+        /* Estilos do Model Viewer */
+        .model-viewport { 
+            width: 100%; height: 300px; 
+            background: rgba(0,0,0,0.5); outline: none;
+            --poster-color: transparent; 
+        }
 
         .price-row {
             background: rgba(255,204,0,.02); border: 1px solid rgba(255,204,0,.1);
@@ -310,7 +315,6 @@
 
         let currentView = 'home';
         let editState = { type: null, targetId: null };
-        window.active3DViews = []; // Guarda os renderizadores para evitar travamentos
 
         // Expondo funções
         window.changeView = function(id, pushHistory = true) {
@@ -322,7 +326,6 @@
                 container.classList.add('visible');
                 if (pushHistory) history.pushState({ view: id }, "", "#" + id);
                 window.scrollTo({ top: 0, behavior: 'smooth' });
-                setTimeout(init3DModels, 100); // Inicia os modelos 3D se existirem
             }, 400);
         };
 
@@ -427,10 +430,11 @@
                     </div>`;
                 } 
                 else if (type === 'model3d') {
+                    // UTILIZANDO A TAG <model-viewer> COMO PEDISTE
                     return `
                     <div class="visual-entry">
                         ${adminBtn}
-                        <div class="model-viewport" data-gltf="${s.url}"></div>
+                        <model-viewer class="model-viewport" src="${s.url}" auto-rotate camera-controls shadow-intensity="1" alt="${s.title}"></model-viewer>
                         <div style="padding:20px; text-align:center;">
                             <h4>${s.title}</h4>
                             <p style="opacity:.8;">${s.desc}</p>
@@ -579,7 +583,6 @@
             window.closeModals();
             await saveDB();
             refreshView();
-            if (currentView !== 'home') setTimeout(init3DModels, 100);
         };
 
         window.deleteCategory = async function(id) {
@@ -593,7 +596,6 @@
             const cat = portfolio.categories.find(c => c.id === catId);
             cat[type] = cat[type].filter(i => i.id !== itemId);
             await saveDB(); refreshView();
-            if (currentView !== 'home') setTimeout(init3DModels, 100);
         };
 
         // ==========================================
@@ -609,7 +611,7 @@
                 
                 supabase.channel('custom-all-channel')
                     .on('postgres_changes', { event: '*', schema: 'public', table: 'portfolio_data', filter: 'id=eq.main' }, (payload) => {
-                        portfolio = payload.new.content; refreshView(); setTimeout(init3DModels, 100);
+                        portfolio = payload.new.content; refreshView(); 
                     }).subscribe();
             } catch (err) { console.error("Erro na leitura Supabase:", err); }
         }
@@ -618,104 +620,6 @@
             if (!supabase) return;
             try { await supabase.from('portfolio_data').upsert({ id: 'main', content: portfolio }); } 
             catch (err) { console.error("Erro ao salvar Supabase:", err); }
-        }
-
-        // ==========================================
-        // MÚLTIPLOS MODELOS 3D (Minecraft GLTF)
-        // ==========================================
-        function init3DModels() {
-            // Limpa modelos antigos para não travar a memória do PC/Telemóvel
-            window.active3DViews.forEach(view => {
-                cancelAnimationFrame(view.frameId);
-                view.renderer.dispose();
-            });
-            window.active3DViews = [];
-
-            const containers = document.querySelectorAll('.model-viewport');
-            const loader = new THREE.GLTFLoader();
-
-            containers.forEach(container => {
-                const url = container.getAttribute('data-gltf');
-                if (!url) return;
-
-                const scene = new THREE.Scene();
-                const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
-                camera.position.z = 3; 
-
-                const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-                renderer.setSize(container.clientWidth, container.clientHeight);
-                
-                // CORREÇÃO DAS CORES SATURADAS (Aplica o formato sRGB)
-                renderer.outputEncoding = THREE.sRGBEncoding;
-                
-                container.appendChild(renderer.domElement);
-
-                // Permite girar o modelo com o rato e aplica os LIMITES DA CÂMERA
-                const controls = new THREE.OrbitControls(camera, renderer.domElement);
-                controls.enableDamping = true;
-                controls.autoRotate = true;
-                controls.autoRotateSpeed = 2.0;
-                
-                // Impede que o modelo seja arrastado para fora do quadro (Panning)
-                controls.enablePan = false; 
-                // Impede a câmera de atravessar o personagem (Zoom in máximo)
-                controls.minDistance = 1.8; 
-                // Impede de afastar demasiado da tela (Zoom out máximo)
-                controls.maxDistance = 4.0; 
-
-                // LUZES SUAVIZADAS (Para preservar as cores reais da textura)
-                const ambient = new THREE.AmbientLight(0xffffff, 0.85);
-                scene.add(ambient);
-                const light = new THREE.DirectionalLight(0xffffff, 0.7);
-                light.position.set(5, 10, 7);
-                scene.add(light);
-
-                loader.load(url, (gltf) => {
-                    const model = gltf.scene;
-                    
-                    // Magia para Minecraft: Filtro Pixelado para a skin não ficar borrada
-                    model.traverse((child) => {
-                        if (child.isMesh && child.material && child.material.map) {
-                            child.material.map.magFilter = THREE.NearestFilter;
-                            child.material.map.minFilter = THREE.NearestFilter;
-                            // Garante que a textura individual também respeita as cores sRGB
-                            child.material.map.encoding = THREE.sRGBEncoding;
-                            child.material.needsUpdate = true;
-                        }
-                    });
-
-                    // NORMALIZAÇÃO DE ESCALA E CENTRALIZAÇÃO 
-                    // (Garante que a câmera respeita os limites de distância)
-                    const box = new THREE.Box3().setFromObject(model);
-                    const size = box.getSize(new THREE.Vector3());
-                    const maxDim = Math.max(size.x, size.y, size.z);
-                    
-                    // Redimensiona o modelo para um tamanho padrão de aprox. 2.2 unidades
-                    const scale = 2.2 / maxDim;
-                    model.scale.set(scale, scale, scale);
-                    
-                    // Recalcula o centro com a nova escala e reposiciona para o meio
-                    const newBox = new THREE.Box3().setFromObject(model);
-                    const newCenter = newBox.getCenter(new THREE.Vector3());
-                    model.position.sub(newCenter); 
-                    
-                    scene.add(model);
-                }, undefined, (error) => {
-                    console.error("Erro ao carregar modelo GLTF:", error);
-                    container.innerHTML = `<div style="color:#ff4d4d; padding:20px; text-align:center;">Erro ao carregar ficheiro 3D.<br>Verifique se o Link termina em .gltf ou .glb</div>`;
-                });
-
-                const viewData = { scene, camera, renderer, controls, frameId: null };
-                
-                function animate() {
-                    viewData.frameId = requestAnimationFrame(animate);
-                    controls.update();
-                    renderer.render(scene, camera);
-                }
-                animate();
-
-                window.active3DViews.push(viewData);
-            });
         }
 
         // ==========================================
