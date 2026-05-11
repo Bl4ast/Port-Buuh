@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sofia | Buuh - Portfólio Estelar</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+    <style>
+        :root {
+            --bg: #050208;
+            --purple-main: #7b2cbf;
+            --purple-bright: #9d4edd;
+            --gold: #ffcc00;
+            --text: #e0d7ff;
+            --glass: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(123, 44, 191, 0.3);
+            --transition: all .4s cubic-bezier(.16,1,.3,1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #050208;
+            color: var(--text);
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        /* ===================================== */
+        /* BACKGROUND ANIMADO */
+        /* ===================================== */
+        #star-canvas {
+            position: fixed; inset: 0; width: 100%; height: 100%;
+            z-index: -3; background: radial-gradient(circle at top, #13051f 0%, #07020d 40%, #020104 100%);
+        }
+
+        .nebula {
+            position: fixed; inset: 0; z-index: -2; pointer-events: none;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(123,44,191,0.25), transparent 30%),
+                radial-gradient(circle at 80% 70%, rgba(157,78,221,0.18), transparent 35%),
+                radial-gradient(circle at center, rgba(255,255,255,0.02), transparent 60%);
+            filter: blur(80px);
+            animation: nebulaMove 18s ease-in-out infinite alternate;
+        }
+
+        @keyframes nebulaMove {
+            0% { transform: scale(1) rotate(0deg); }
+            100% { transform: scale(1.1) rotate(5deg); }
+        }
+
+        /* ===================================== */
+        /* LAYOUT & TIPOGRAFIA */
+        /* ===================================== */
+        .container { max-width: 1100px; margin: auto; padding: 40px 20px; }
+        header { padding: 50px 20px; text-align: center; }
+
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(3rem, 12vw, 5.5rem);
+            color: white; line-height: 1; margin-bottom: 10px;
+            text-shadow: 0 0 25px var(--purple-main), 0 0 50px rgba(157,78,221,.3);
+        }
+
+        .tagline {
+            font-size: .85rem; letter-spacing: 5px; color: var(--gold);
+            text-transform: uppercase; opacity: .8;
+        }
+
+        /* ===================================== */
+        /* PAINEL DE VIDRO E PERFIL */
+        /* ===================================== */
+        .glass-panel {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            padding: 45px; border-radius: 35px;
+            backdrop-filter: blur(25px); margin-bottom: 40px;
+            position: relative; overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,.6);
+        }
+
+        .profile-section { display: flex; gap: 40px; align-items: center; }
+        .profile-img-container {
+            width: 170px; height: 170px; border-radius: 50%; overflow: hidden;
+            flex-shrink: 0; border: 2px solid var(--purple-bright);
+            position: relative; box-shadow: 0 0 30px rgba(157,78,221,.5);
+        }
+        .profile-img-container img { width: 100%; height: 100%; object-fit: cover; background: #111; }
+
+        .sub-header {
+            font-family: 'Playfair Display', serif; font-size: 2.2rem;
+            margin-bottom: 20px; display: flex; align-items: center; gap: 15px; color: white;
+        }
+        .sub-header::after {
+            content: ""; flex: 1; height: 1px;
+            background: linear-gradient(to right, var(--purple-main), transparent);
+        }
+
+        /* ===================================== */
+        /* CARDS E LISTAS */
+        /* ===================================== */
+        .main-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px; margin-bottom: 60px;
+        }
+
+        .nav-card {
+            position: relative; overflow: hidden;
+            background: linear-gradient(160deg, rgba(123,44,191,.08), rgba(255,255,255,.01));
+            border: 1px solid var(--glass-border); border-radius: 30px;
+            cursor: pointer; transition: var(--transition);
+            text-align: center; display: flex; flex-direction: column;
+        }
+        .nav-card:hover { transform: translateY(-10px); border-color: var(--gold); box-shadow: 0 15px 40px rgba(123,44,191,.3); }
+        .card-head { padding: 40px 20px 10px; }
+        .card-icon { font-size: 2.8rem; margin-bottom: 15px; display: block; filter: drop-shadow(0 0 10px var(--purple-bright)); }
+        .card-body { padding: 0 30px 40px; font-size: .9rem; opacity: .7; line-height: 1.6; }
+
+        /* ===================================== */
+        /* TABS (BASEADO NA IMAGEM ENVIADA) */
+        /* ===================================== */
+        .tabs-container {
+            display: flex; gap: 5px;
+            border-bottom: 1px solid var(--glass-border);
+            padding-bottom: 15px; margin-bottom: 35px; width: 100%;
+        }
+        .tab-btn {
+            background: transparent; border: none; color: rgba(255,255,255,0.5);
+            padding: 10px 25px; cursor: pointer; font-family: inherit;
+            font-weight: 600; border-radius: 12px; transition: .3s; font-size: 1rem;
+        }
+        .tab-btn.active { background: #8a2be2; color: white; opacity: 1; box-shadow: 0 0 15px rgba(138,43,226,0.5); }
+        .tab-pane { display: none; }
+        .tab-pane.active { display: block; animation: fadeIn .4s ease; }
+        @keyframes fadeIn { from{opacity:0;} to{opacity:1;} }
+
+        .lore-entry {
+            background: rgba(255,255,255,.02); border: 1px solid var(--glass-border);
+            border-radius: 25px; margin-bottom: 25px; display: flex; overflow: hidden; align-items: center;
+        }
+        .lore-thumb {
+            width: 120px; background: #0c051a; display: flex; align-items: center; justify-content: center;
+            font-size: 2.5rem; flex-shrink: 0; align-self: stretch;
+        }
+        .lore-details { padding: 25px; flex-grow: 1; }
+        .lore-details h4 { font-family: 'Playfair Display', serif; color: var(--gold); font-size: 1.5rem; margin-bottom: 5px; }
+
+        .price-row {
+            background: rgba(255,204,0,.02); border: 1px solid rgba(255,204,0,.1);
+            padding: 22px 30px; border-radius: 18px; display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 15px;
+        }
+
+        /* ===================================== */
+        /* BOTÕES DE STAFF */
+        /* ===================================== */
+        .staff-only { display: none !important; }
+        body.is-staff .staff-only { display: block !important; }
+        body.is-staff .staff-only.staff-flex { display: flex !important; }
+
+        .btn-pill-purple {
+            background: #8a2be2; color: white; border: none; border-radius: 20px;
+            padding: 8px 20px; cursor: pointer; font-family: 'Poppins', sans-serif;
+            font-weight: 600; font-size: 0.85rem; transition: .3s;
+            display: inline-flex; align-items: center; gap: 6px;
+            box-shadow: 0 4px 10px rgba(138,43,226,0.3);
+        }
+        .btn-pill-purple:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(138,43,226,0.5); }
+
+        .btn-pill-red {
+            background: #ff4d4d; color: white; border: none; border-radius: 20px;
+            padding: 8px 20px; cursor: pointer; font-family: 'Poppins', sans-serif;
+            font-weight: 600; font-size: 0.85rem; transition: .3s;
+            display: inline-flex; align-items: center; gap: 6px;
+            box-shadow: 0 4px 10px rgba(255,77,77,0.3);
+        }
+        .btn-pill-red:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(255,77,77,0.5); }
+
+        .btn-back {
+            background: none; border: 1px solid var(--gold); color: var(--gold);
+            padding: 10px 30px; border-radius: 50px; cursor: pointer; margin-bottom: 25px; transition: .3s;
+        }
+        .btn-back:hover { background: var(--gold); color: var(--bg); }
+
+        #viewport { width: 100%; height: 500px; background: rgba(0,0,0,.5); border-radius: 30px; border: 1px solid var(--glass-border); }
+
+        /* Controles de Logout/Acesso */
+        .staff-controls-panel { position: fixed; bottom: 30px; right: 30px; display: flex; gap: 12px; z-index: 1000; }
+        .staff-trigger, .staff-logout {
+            width: 55px; height: 55px; border-radius: 50%; border: none; cursor: pointer;
+            color: white; font-size: 1.1rem; transition: .3s; display: flex; align-items: center; justify-content: center;
+        }
+        .staff-trigger { background: var(--purple-main); box-shadow: 0 0 20px rgba(123,44,191,.5); }
+        .staff-trigger:hover { transform: rotate(90deg) scale(1.1); }
+        body.is-staff .staff-trigger { display: none; }
+        .staff-logout { background: #ff4d4d; display: none; }
+        body.is-staff .staff-logout { display: flex; }
+        .staff-logout:hover { transform: scale(1.1); }
+
+        /* Clique direto para editar */
+        body.is-staff .editable-hover { cursor: pointer; transition: 0.3s; padding: 5px; border-radius: 8px; border: 1px dashed transparent; }
+        body.is-staff .editable-hover:hover { border-color: var(--gold); background: rgba(255,255,255,0.05); }
+
+        /* ===================================== */
+        /* MODAIS */
+        /* ===================================== */
+        .modal {
+            position: fixed; inset: 0; display: none; align-items: center; justify-content: center;
+            background: rgba(0,0,0,.85); backdrop-filter: blur(10px); z-index: 9999;
+        }
+        .modal.active { display: flex; }
+        .modal-content {
+            width: min(500px, 90%); background: #0d0718; border: 1px solid rgba(255,255,255,.08);
+            border-radius: 30px; padding: 35px; box-shadow: 0 0 40px rgba(123,44,191,.35);
+            max-height: 90vh; overflow-y: auto;
+        }
+        input, textarea {
+            width: 100%; padding: 15px 20px; margin: 8px 0 15px 0; background: rgba(255,255,255,.04);
+            border: 1px solid var(--glass-border); border-radius: 12px; color: white; font-family: inherit;
+        }
+        label { font-size: 0.85rem; color: var(--gold); margin-left: 5px; }
+        
+        .view-wrapper { opacity: 0; transform: translateY(20px); transition: var(--transition); }
+        .view-wrapper.visible { opacity: 1; transform: translateY(0); }
+
+        @media(max-width:850px){
+            .profile-section{ flex-direction:column; text-align:center; }
+            .lore-entry{ flex-direction:column; }
+            .lore-thumb{ width:100%; height:100px; border-radius: 25px 25px 0 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="star-canvas"></canvas>
+    <div class="nebula"></div>
+
+    <div class="container view-wrapper" id="app-content"></div>
+
+    <!-- Modais -->
+    <div id="login-modal" class="modal">
+        <div class="modal-content" style="text-align:center;">
+            <h2 style="margin-bottom:20px; font-family: 'Playfair Display'; color: var(--gold);">Acesso Staff</h2>
+            <input type="password" id="staff-pass" placeholder="Palavra-passe">
+            <div style="display: flex; gap: 10px; justify-content: center; margin-top: 15px;">
+                <button class="btn-pill-purple" style="padding: 10px 30px;" onclick="checkStaff()">Entrar</button>
+                <button class="btn-pill-purple" style="background:transparent; border: 1px solid var(--gold); color: var(--gold); padding: 10px 30px;" onclick="closeModals()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="editor-modal" class="modal">
+        <div class="modal-content">
+            <h2 id="editor-title" style="margin-bottom:20px; font-family: 'Playfair Display'; color: var(--gold);">Editar</h2>
+            <div id="editor-fields"></div>
+            <div style="display: flex; gap: 10px; margin-top: 25px;">
+                <button class="btn-pill-purple" style="flex:1; justify-content: center; padding: 12px;" onclick="saveData()">Salvar Alterações</button>
+                <button class="btn-pill-purple" style="background:transparent; border: 1px solid var(--gold); color: var(--gold); padding: 12px;" onclick="closeModals()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Botões Flutuantes Staff -->
+    <div class="staff-controls-panel">
+        <button class="staff-logout" title="Sair do Modo Staff" onclick="logoutStaff()">✕</button>
+        <button class="staff-trigger" title="Entrar no Modo Staff" onclick="openStaffLogin()">⚙️</button>
+    </div>
+
+    <!-- SCRIPT ÚNICO (Conexão Supabase) -->
+    <script type="module">
+        // Importa Supabase do CDN
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+        // =========================================================
+        // ⚠️ CONFIGURAÇÃO SUPABASE ⚠️
+        // A URL já foi colocada com base na tua imagem!
+        // Copia a chave "anon public" do teu painel e cola em baixo:
+        // =========================================================
+        const supabaseUrl = 'https://afrhflyibkjywsuefgno.supabase.co';
+        const supabaseKey = 'sb_publishable_oteHwr_i_hGi8SFBDzZCmA_K5z7hjG5'; 
+        
+        let supabase = null;
+        try {
+            if (supabaseKey !== 'COLA_AQUI_A_TUA_CHAVE_ANON_PUBLIC') {
+                supabase = createClient(supabaseUrl, supabaseKey);
+            }
+        } catch(e) { console.error("Erro ao iniciar Supabase", e); }
+
+        let portfolio = {
+            title: "Sofia | Buuh",
+            tagline: "✦ Biblioteconomia • Narrativas • Pixels ✦",
+            profilePic: "https://i.pinimg.com/736x/7e/34/f4/7e34f4db31c4fd0a5eb0e7cf1f81d6ba.jpg",
+            about: "Estudante de Biblioteconomia na UFSC, transformando informação em mundos imaginários e pixels em arte.",
+            discord: "y_buuh",
+            modelName: "Nébula Mística",
+            categories: [
+                { id: 'lore', title: 'Escrita', icon: '📜', desc: 'Narrativas, lore e backgrounds.', samples: [], prices: [] },
+                { id: 'skins', title: 'Ateliê', icon: '✨', desc: 'Modelagem e texturização 3D.', samples: [], prices: [] },
+                { id: 'systems', title: 'Sistemas', icon: '📂', desc: 'Organização e arquitetura Notion.', samples: [], prices: [] }
+            ]
+        };
+
+        let currentView = 'home';
+        let editState = { type: null, targetId: null };
+
+        // Expondo as funções principais para o window para que os eventos HTML funcionem
+        window.changeView = function(id, pushHistory = true) {
+            const container = document.getElementById('app-content');
+            container.classList.remove('visible');
+            setTimeout(() => {
+                currentView = id;
+                refreshView();
+                container.classList.add('visible');
+                if (pushHistory) history.pushState({ view: id }, "", "#" + id);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                if (id === 'skins') setTimeout(init3D, 50);
+            }, 400);
+        };
+
+        window.refreshView = refreshView;
+
+        function refreshView() {
+            if (currentView === 'home') renderHome();
+            else renderCategory(currentView);
+        }
+
+        function renderHome() {
+            const container = document.getElementById('app-content');
+            container.innerHTML = `
+                <header>
+                    <div class="editable-hover" onclick="if(document.body.classList.contains('is-staff')) window.openEditor('header')" title="Clique para editar cabeçalho">
+                        <h1>${portfolio.title}</h1>
+                        <p class="tagline">${portfolio.tagline}</p>
+                    </div>
+                </header>
+
+                <section class="glass-panel">
+                    <div class="profile-section">
+                        <div class="profile-img-container editable-hover" onclick="if(document.body.classList.contains('is-staff')) window.openEditor('profile')" title="Clique para editar foto">
+                            <img src="${portfolio.profilePic || 'https://via.placeholder.com/170/111/7b2cbf?text=Buuh'}" alt="Foto de Perfil">
+                        </div>
+                        <div style="flex-grow: 1;">
+                            <h2 class="sub-header">Sobre Mim</h2>
+                            <div class="editable-hover" style="opacity: 0.9; line-height: 1.6;" onclick="if(document.body.classList.contains('is-staff')) window.openEditor('profile')" title="Clique para editar sobre mim">
+                                ${portfolio.about}
+                            </div>
+                            
+                            <div class="staff-only staff-flex" style="margin-top: 25px; gap: 15px; flex-wrap: wrap;">
+                                <button class="btn-pill-purple" onclick="window.openEditor('header')">✏️ Titulo & Tagline</button>
+                                <button class="btn-pill-purple" onclick="window.openEditor('profile')">✏️ Foto & Bio</button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <nav class="main-grid">
+                    ${portfolio.categories.map(cat => `
+                        <div class="nav-card" onclick="window.changeView('${cat.id}')">
+                            <div class="card-head">
+                                <span class="card-icon">${cat.icon}</span>
+                                <h3>${cat.title}</h3>
+                            </div>
+                            <div class="card-body">${cat.desc}</div>
+                            
+                            <div class="staff-only staff-flex" style="padding: 15px; border-top: 1px solid var(--glass-border); gap: 10px; justify-content: center;">
+                                <button class="btn-pill-purple" style="flex:1; justify-content: center;" onclick="event.stopPropagation(); window.openEditor('edit-cat', '${cat.id}')">Editar</button>
+                                <button class="btn-pill-red" style="flex:1; justify-content: center;" onclick="event.stopPropagation(); window.deleteCategory('${cat.id}')">Excluir</button>
+                            </div>
+                        </div>
+                    `).join('')}
+                    
+                    <div class="nav-card staff-only staff-flex" style="border: 1px dashed var(--gold); background: transparent; justify-content: center; min-height: 200px;" onclick="window.openEditor('add-cat')">
+                         <div class="card-head" style="border:none; padding-bottom: 0;">
+                             <span class="card-icon">+</span>
+                             <h3 style="color: var(--gold);">Nova Categoria</h3>
+                         </div>
+                    </div>
+                </nav>
+
+                <section style="text-align:center;">
+                    <div class="editable-hover" onclick="if(document.body.classList.contains('is-staff')) window.openEditor('discord')" style="background:var(--glass); display:inline-block; padding:15px 40px; border-radius:50px; border:1px solid var(--glass-border); backdrop-filter:blur(10px);" title="Clique para editar Discord">
+                        🎮 Discord: <strong style="color:var(--gold); margin-left: 5px;">${portfolio.discord}</strong>
+                    </div>
+                </section>
+                <footer>&copy; 2026 Sofia Buuh • Florianópolis</footer>
+            `;
+        }
+
+        function renderCategory(catId) {
+            const cat = portfolio.categories.find(c => c.id === catId);
+            if (!cat) return window.changeView('home');
+
+            const container = document.getElementById('app-content');
+            container.innerHTML = `
+                <button class="btn-back" onclick="window.changeView('home')">← Regressar ao Início</button>
+                
+                <section class="glass-panel">
+                    <h2 class="sub-header">${cat.title}</h2>
+                    
+                    <div class="tabs-container">
+                        <button class="tab-btn active" onclick="window.switchTab(this,'tab-samples')">Amostras</button>
+                        <button class="tab-btn" onclick="window.switchTab(this,'tab-prices')">Valores</button>
+                    </div>
+
+                    <div id="tab-samples" class="tab-pane active">
+                        ${catId === 'skins' ? `
+                            <div style="text-align:center; margin-bottom:20px; display: flex; justify-content: center; align-items: center; gap: 15px;">
+                                <span class="editable-hover" onclick="if(document.body.classList.contains('is-staff')) window.openEditor('model-name')" style="color:var(--gold); font-size:1.4rem; font-family:'Playfair Display';">${portfolio.modelName}</span>
+                            </div>
+                            <div id="viewport"></div>
+                        ` : `
+                            ${cat.samples.length === 0 ? '<p style="opacity:0.5; text-align:center; padding: 40px;">Ainda não existem amostras aqui.</p>' : ''}
+                            ${cat.samples.map(s => `
+                                <div class="lore-entry">
+                                    <div class="lore-thumb">📄</div>
+                                    <div class="lore-details">
+                                        <h4>${s.title}</h4>
+                                        <p style="margin-bottom:15px; opacity:.8;">${s.desc}</p>
+                                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                                            <a href="${s.url}" target="_blank" style="color:var(--gold); text-decoration:none; font-weight:600;">Ver Trabalho ↗</a>
+                                            <button class="staff-only btn-pill-red" onclick="window.deleteItem('${cat.id}', 'samples', ${s.id})">Remover</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        `}
+                        <div class="staff-only" style="margin-top: 30px; text-align: center;">
+                            <button class="btn-pill-purple" onclick="window.openEditor('add-sample', '${cat.id}')">+ Adicionar Amostra</button>
+                        </div>
+                    </div>
+
+                    <div id="tab-prices" class="tab-pane">
+                        ${cat.prices.length === 0 ? '<p style="opacity:0.5; text-align:center; padding: 40px;">Tabela de valores sob consulta.</p>' : ''}
+                        ${cat.prices.map(p => `
+                            <div class="price-row">
+                                <span>${p.label}</span>
+                                <div style="display: flex; align-items: center; gap: 15px;">
+                                    <strong style="color:var(--gold);">${p.price}</strong>
+                                    <button class="staff-only btn-pill-red" onclick="window.deleteItem('${cat.id}', 'prices', ${p.id})">X</button>
+                                </div>
+                            </div>
+                        `).join('')}
+                        <div class="staff-only" style="margin-top: 30px; text-align: center;">
+                            <button class="btn-pill-purple" onclick="window.openEditor('add-price', '${cat.id}')">+ Adicionar Preço</button>
+                        </div>
+                    </div>
+                </section>
+                <footer>&copy; 2026 Sofia Buuh • Florianópolis</footer>
+            `;
+        }
+
+        window.switchTab = function(btn, id) {
+            const panel = btn.closest('.glass-panel');
+            panel.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            panel.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+        };
+
+        // STAFF FUNÇÕES
+        window.openStaffLogin = () => document.getElementById('login-modal').classList.add('active');
+        window.closeModals = () => document.querySelectorAll('.modal').forEach(m => m.classList.remove('active'));
+        
+        window.checkStaff = function() {
+            const pass = document.getElementById('staff-pass').value.trim();
+            if (pass === 'admin123') {
+                document.body.classList.add('is-staff');
+                window.closeModals();
+                document.getElementById('staff-pass').value = '';
+            } else {
+                alert("Senha incorreta.");
+            }
+        };
+
+        window.logoutStaff = function() {
+            document.body.classList.remove('is-staff');
+        };
+
+        window.openEditor = function(type, targetId = null) {
+            editState = { type, targetId };
+            const modal = document.getElementById('editor-modal');
+            const title = document.getElementById('editor-title');
+            const fields = document.getElementById('editor-fields');
+            
+            if (type === 'header') {
+                title.innerText = "Textos Principais";
+                fields.innerHTML = `
+                    <label>Título do Site</label><input id="inp-title" value="${portfolio.title}">
+                    <label>Frase de Efeito (Tagline)</label><input id="inp-tag" value="${portfolio.tagline}">
+                `;
+            } else if (type === 'profile') {
+                title.innerText = "Perfil";
+                fields.innerHTML = `
+                    <label>URL da Foto (Link direto da imagem)</label><input id="inp-pic" value="${portfolio.profilePic}">
+                    <label>Sobre Mim (HTML permitido)</label><textarea id="inp-about" rows="6">${portfolio.about}</textarea>
+                `;
+            } else if (type === 'discord') {
+                title.innerText = "Contato";
+                fields.innerHTML = `<label>Usuário Discord</label><input id="inp-discord" value="${portfolio.discord}">`;
+            } else if (type === 'model-name') {
+                title.innerText = "Nome do Modelo 3D";
+                fields.innerHTML = `<label>Nome de exibição</label><input id="inp-modelname" value="${portfolio.modelName}">`;
+            } else if (type === 'add-cat' || type === 'edit-cat') {
+                const isEdit = type === 'edit-cat';
+                const cat = isEdit ? portfolio.categories.find(c => c.id === targetId) : { title: '', icon: '', desc: '' };
+                title.innerText = isEdit ? "Editar Categoria" : "Nova Categoria";
+                fields.innerHTML = `
+                    <label>Título do Card</label><input id="inp-cat-title" value="${cat.title}">
+                    <label>Ícone (Emoji)</label><input id="inp-cat-icon" value="${cat.icon}">
+                    <label>Breve Descrição</label><input id="inp-cat-desc" value="${cat.desc}">
+                `;
+            } else if (type === 'add-sample') {
+                title.innerText = "Adicionar Amostra";
+                fields.innerHTML = `
+                    <label>Título</label><input id="inp-sam-title">
+                    <label>Resumo</label><input id="inp-sam-desc">
+                    <label>Link (URL)</label><input id="inp-sam-url">
+                `;
+            } else if (type === 'add-price') {
+                title.innerText = "Adicionar Preço";
+                fields.innerHTML = `
+                    <label>Serviço</label><input id="inp-pr-label">
+                    <label>Valor</label><input id="inp-pr-val">
+                `;
+            }
+            modal.classList.add('active');
+        };
+
+        window.saveData = async function() {
+            const { type, targetId } = editState;
+            if (type === 'header') {
+                portfolio.title = document.getElementById('inp-title').value;
+                portfolio.tagline = document.getElementById('inp-tag').value;
+            } else if (type === 'profile') {
+                portfolio.profilePic = document.getElementById('inp-pic').value;
+                portfolio.about = document.getElementById('inp-about').value;
+            } else if (type === 'discord') {
+                portfolio.discord = document.getElementById('inp-discord').value;
+            } else if (type === 'model-name') {
+                portfolio.modelName = document.getElementById('inp-modelname').value;
+            } else if (type === 'add-cat') {
+                portfolio.categories.push({
+                    id: 'cat_' + Date.now(), title: document.getElementById('inp-cat-title').value,
+                    icon: document.getElementById('inp-cat-icon').value, desc: document.getElementById('inp-cat-desc').value,
+                    samples: [], prices: []
+                });
+            } else if (type === 'edit-cat') {
+                const cat = portfolio.categories.find(c => c.id === targetId);
+                cat.title = document.getElementById('inp-cat-title').value;
+                cat.icon = document.getElementById('inp-cat-icon').value;
+                cat.desc = document.getElementById('inp-cat-desc').value;
+            } else if (type === 'add-sample') {
+                const cat = portfolio.categories.find(c => c.id === targetId);
+                cat.samples.push({ id: Date.now(), title: document.getElementById('inp-sam-title').value, desc: document.getElementById('inp-sam-desc').value, url: document.getElementById('inp-sam-url').value });
+            } else if (type === 'add-price') {
+                const cat = portfolio.categories.find(c => c.id === targetId);
+                cat.prices.push({ id: Date.now(), label: document.getElementById('inp-pr-label').value, price: document.getElementById('inp-pr-val').value });
+            }
+            window.closeModals();
+            await saveDB();
+            refreshView();
+        };
+
+        window.deleteCategory = async function(id) {
+            if (!confirm("Tem certeza que deseja apagar a categoria inteira?")) return;
+            portfolio.categories = portfolio.categories.filter(c => c.id !== id);
+            await saveDB();
+            refreshView();
+        };
+
+        window.deleteItem = async function(catId, type, itemId) {
+            if (!confirm("Remover este item?")) return;
+            const cat = portfolio.categories.find(c => c.id === catId);
+            cat[type] = cat[type].filter(i => i.id !== itemId);
+            await saveDB();
+            refreshView();
+        };
+
+        // =========================================================
+        // FUNÇÕES SUPABASE (Substitui o Firebase)
+        // =========================================================
+        async function syncDB() {
+            if (!supabase) return;
+            try {
+                // Busca os dados na tabela 'portfolio_data' onde a linha seja id='main'
+                const { data, error } = await supabase
+                    .from('portfolio_data')
+                    .select('content')
+                    .eq('id', 'main')
+                    .single();
+                
+                if (data && data.content) {
+                    portfolio = data.content;
+                } else {
+                    // Se a tabela estiver vazia, guarda o json default
+                    await supabase.from('portfolio_data').insert([{ id: 'main', content: portfolio }]);
+                }
+
+                refreshView();
+
+                // Assina o canal para mudanças em tempo real! Se editares num PC, atualiza no Telemóvel logo.
+                supabase.channel('custom-all-channel')
+                    .on('postgres_changes', { event: '*', schema: 'public', table: 'portfolio_data', filter: 'id=eq.main' }, (payload) => {
+                        portfolio = payload.new.content;
+                        refreshView();
+                    })
+                    .subscribe();
+
+            } catch (err) {
+                console.error("Erro na leitura Supabase:", err);
+            }
+        }
+
+        async function saveDB() {
+            if (!supabase) {
+                alert("Sem Supabase configurado corretamente. Dados guardados apenas temporariamente.");
+                return;
+            }
+            try {
+                // Upsert (Faz update se existir, ou insert se for novo)
+                await supabase
+                    .from('portfolio_data')
+                    .upsert({ id: 'main', content: portfolio });
+            } catch (err) {
+                console.error("Erro ao salvar Supabase:", err);
+            }
+        }
+
+        // INIT THREE JS
+        let scene, camera, renderer, model;
+        function init3D() {
+            const container = document.getElementById('viewport');
+            if (!container) return;
+            container.innerHTML = '';
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
+            camera.position.z = 5;
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            container.appendChild(renderer.domElement);
+            scene.add(new THREE.AmbientLight(0xffffff, 1.3));
+            const light = new THREE.PointLight(0x9d4edd, 2);
+            light.position.set(5, 5, 5);
+            scene.add(light);
+            const geo = new THREE.IcosahedronGeometry(1.4, 1);
+            const mat = new THREE.MeshPhongMaterial({ color: 0x7b2cbf, emissive: 0x3c096c, wireframe: true });
+            model = new THREE.Mesh(geo, mat);
+            scene.add(model);
+            function animate3D() {
+                requestAnimationFrame(animate3D);
+                if (model) { model.rotation.y += .005; model.rotation.x += .002; }
+                renderer.render(scene, camera);
+            }
+            animate3D();
+        }
+
+        // INIT PARTICLES
+        const canvas = document.getElementById('star-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+        window.addEventListener('resize', resizeCanvas);
+        function createParticles() {
+            particles = [];
+            for (let i = 0; i < 220; i++) {
+                particles.push({
+                    x: Math.random() * window.innerWidth, y: Math.random() * window.innerHeight,
+                    radius: Math.random() * 2.2, speed: Math.random() * 0.4 + 0.05, opacity: Math.random(), hue: 260 + Math.random() * 30
+                });
+            }
+        }
+        function animateStars() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => {
+                p.y -= p.speed;
+                if (p.y < -5) { p.y = window.innerHeight + 5; p.x = Math.random() * window.innerWidth; }
+                ctx.beginPath(); ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                ctx.fillStyle = `hsla(${p.hue}, 100%, 75%, ${p.opacity})`;
+                ctx.shadowBlur = 15; ctx.shadowColor = `hsl(${p.hue}, 100%, 70%)`; ctx.fill();
+            });
+            requestAnimationFrame(animateStars);
+        }
+
+        // LOAD EVENTS
+        window.onpopstate = (e) => {
+            const viewId = (e.state && e.state.view) ? e.state.view : 'home';
+            window.changeView(viewId, false);
+        };
+
+        window.addEventListener('DOMContentLoaded', async () => {
+            resizeCanvas(); createParticles(); animateStars();
+            
+            await syncDB();
+
+            const hash = location.hash.replace('#', '');
+            if (hash && hash !== 'home') window.changeView(hash, false);
+            else window.changeView('home', false);
+        });
+    </script>
+</body>
+</html>
