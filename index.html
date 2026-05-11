@@ -390,7 +390,7 @@
                         🎮 Discord: <strong style="color:var(--gold); margin-left: 5px;">${portfolio.discord}</strong>
                     </div>
                 </section>
-                <footer>&copy; 2026 Port Buuh • Made by @bl4ast</footer>
+                <footer>&copy; 2026 Sofia Buuh • Florianópolis</footer>
             `;
         }
 
@@ -499,7 +499,7 @@
         window.closeModals = () => document.querySelectorAll('.modal').forEach(m => m.classList.remove('active'));
         
         window.checkStaff = function() {
-            if (document.getElementById('staff-pass').value.trim() === 'bl4astlindo') {
+            if (document.getElementById('staff-pass').value.trim() === 'admin123') {
                 document.body.classList.add('is-staff');
                 window.closeModals();
                 document.getElementById('staff-pass').value = '';
@@ -644,17 +644,29 @@
 
                 const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
                 renderer.setSize(container.clientWidth, container.clientHeight);
+                
+                // CORREÇÃO DAS CORES SATURADAS (Aplica o formato sRGB)
+                renderer.outputEncoding = THREE.sRGBEncoding;
+                
                 container.appendChild(renderer.domElement);
 
-                // Permite girar o modelo com o rato
+                // Permite girar o modelo com o rato e aplica os LIMITES DA CÂMERA
                 const controls = new THREE.OrbitControls(camera, renderer.domElement);
                 controls.enableDamping = true;
                 controls.autoRotate = true;
                 controls.autoRotateSpeed = 2.0;
+                
+                // Impede que o modelo seja arrastado para fora do quadro (Panning)
+                controls.enablePan = false; 
+                // Impede a câmera de atravessar o personagem (Zoom in máximo)
+                controls.minDistance = 1.8; 
+                // Impede de afastar demasiado da tela (Zoom out máximo)
+                controls.maxDistance = 4.0; 
 
-                const ambient = new THREE.AmbientLight(0xffffff, 1.2);
+                // LUZES SUAVIZADAS (Para preservar as cores reais da textura)
+                const ambient = new THREE.AmbientLight(0xffffff, 0.85);
                 scene.add(ambient);
-                const light = new THREE.DirectionalLight(0xffffff, 1);
+                const light = new THREE.DirectionalLight(0xffffff, 0.7);
                 light.position.set(5, 10, 7);
                 scene.add(light);
 
@@ -666,14 +678,26 @@
                         if (child.isMesh && child.material && child.material.map) {
                             child.material.map.magFilter = THREE.NearestFilter;
                             child.material.map.minFilter = THREE.NearestFilter;
+                            // Garante que a textura individual também respeita as cores sRGB
+                            child.material.map.encoding = THREE.sRGBEncoding;
                             child.material.needsUpdate = true;
                         }
                     });
 
-                    // Centraliza o modelo automaticamente na tela
+                    // NORMALIZAÇÃO DE ESCALA E CENTRALIZAÇÃO 
+                    // (Garante que a câmera respeita os limites de distância)
                     const box = new THREE.Box3().setFromObject(model);
-                    const center = box.getCenter(new THREE.Vector3());
-                    model.position.sub(center); 
+                    const size = box.getSize(new THREE.Vector3());
+                    const maxDim = Math.max(size.x, size.y, size.z);
+                    
+                    // Redimensiona o modelo para um tamanho padrão de aprox. 2.2 unidades
+                    const scale = 2.2 / maxDim;
+                    model.scale.set(scale, scale, scale);
+                    
+                    // Recalcula o centro com a nova escala e reposiciona para o meio
+                    const newBox = new THREE.Box3().setFromObject(model);
+                    const newCenter = newBox.getCenter(new THREE.Vector3());
+                    model.position.sub(newCenter); 
                     
                     scene.add(model);
                 }, undefined, (error) => {
