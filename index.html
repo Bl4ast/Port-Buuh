@@ -123,7 +123,7 @@
         .card-body { padding: 0 30px 40px; font-size: .9rem; opacity: .7; line-height: 1.6; }
 
         /* ===================================== */
-        /* TABS (BASEADO NA IMAGEM ENVIADA) */
+        /* TABS & GALERIA */
         /* ===================================== */
         .tabs-container {
             display: flex; gap: 5px;
@@ -140,9 +140,18 @@
         .tab-pane.active { display: block; animation: fadeIn .4s ease; }
         @keyframes fadeIn { from{opacity:0;} to{opacity:1;} }
 
+        /* Grid para galeria mista (Imagens e 3D) */
+        .samples-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 25px;
+        }
+        
+        .samples-grid .lore-entry { grid-column: 1 / -1; } /* Texto ocupa a linha toda */
+
         .lore-entry {
             background: rgba(255,255,255,.02); border: 1px solid var(--glass-border);
-            border-radius: 25px; margin-bottom: 25px; display: flex; overflow: hidden; align-items: center;
+            border-radius: 25px; display: flex; overflow: hidden; align-items: center; position: relative;
         }
         .lore-thumb {
             width: 120px; background: #0c051a; display: flex; align-items: center; justify-content: center;
@@ -150,6 +159,14 @@
         }
         .lore-details { padding: 25px; flex-grow: 1; }
         .lore-details h4 { font-family: 'Playfair Display', serif; color: var(--gold); font-size: 1.5rem; margin-bottom: 5px; }
+
+        .visual-entry {
+            background: rgba(255,255,255,.02); border: 1px solid var(--glass-border);
+            border-radius: 25px; overflow: hidden; position: relative; display: flex; flex-direction: column;
+        }
+        .visual-entry h4 { font-family: 'Playfair Display', serif; color: var(--gold); font-size: 1.5rem; margin-bottom: 5px; }
+        .model-viewport { width: 100%; height: 300px; background: rgba(0,0,0,0.5); cursor: grab; }
+        .model-viewport:active { cursor: grabbing; }
 
         .price-row {
             background: rgba(255,204,0,.02); border: 1px solid rgba(255,204,0,.1);
@@ -168,7 +185,7 @@
             background: #8a2be2; color: white; border: none; border-radius: 20px;
             padding: 8px 20px; cursor: pointer; font-family: 'Poppins', sans-serif;
             font-weight: 600; font-size: 0.85rem; transition: .3s;
-            display: inline-flex; align-items: center; gap: 6px;
+            display: inline-flex; align-items: center; justify-content: center; gap: 6px;
             box-shadow: 0 4px 10px rgba(138,43,226,0.3);
         }
         .btn-pill-purple:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(138,43,226,0.5); }
@@ -177,7 +194,7 @@
             background: #ff4d4d; color: white; border: none; border-radius: 20px;
             padding: 8px 20px; cursor: pointer; font-family: 'Poppins', sans-serif;
             font-weight: 600; font-size: 0.85rem; transition: .3s;
-            display: inline-flex; align-items: center; gap: 6px;
+            display: inline-flex; align-items: center; justify-content: center; gap: 6px;
             box-shadow: 0 4px 10px rgba(255,77,77,0.3);
         }
         .btn-pill-red:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(255,77,77,0.5); }
@@ -187,8 +204,6 @@
             padding: 10px 30px; border-radius: 50px; cursor: pointer; margin-bottom: 25px; transition: .3s;
         }
         .btn-back:hover { background: var(--gold); color: var(--bg); }
-
-        #viewport { width: 100%; height: 500px; background: rgba(0,0,0,.5); border-radius: 30px; border: 1px solid var(--glass-border); }
 
         /* Controles de Logout/Acesso */
         .staff-controls-panel { position: fixed; bottom: 30px; right: 30px; display: flex; gap: 12px; z-index: 1000; }
@@ -220,10 +235,11 @@
             border-radius: 30px; padding: 35px; box-shadow: 0 0 40px rgba(123,44,191,.35);
             max-height: 90vh; overflow-y: auto;
         }
-        input, textarea {
+        input, textarea, select {
             width: 100%; padding: 15px 20px; margin: 8px 0 15px 0; background: rgba(255,255,255,.04);
             border: 1px solid var(--glass-border); border-radius: 12px; color: white; font-family: inherit;
         }
+        select option { background: #0d0718; color: white; }
         label { font-size: 0.85rem; color: var(--gold); margin-left: 5px; }
         
         .view-wrapper { opacity: 0; transform: translateY(20px); transition: var(--transition); }
@@ -243,7 +259,6 @@
 
     <div class="container view-wrapper" id="app-content"></div>
 
-    <!-- Modais -->
     <div id="login-modal" class="modal">
         <div class="modal-content" style="text-align:center;">
             <h2 style="margin-bottom:20px; font-family: 'Playfair Display'; color: var(--gold);">Acesso Staff</h2>
@@ -260,37 +275,26 @@
             <h2 id="editor-title" style="margin-bottom:20px; font-family: 'Playfair Display'; color: var(--gold);">Editar</h2>
             <div id="editor-fields"></div>
             <div style="display: flex; gap: 10px; margin-top: 25px;">
-                <button class="btn-pill-purple" style="flex:1; justify-content: center; padding: 12px;" onclick="saveData()">Salvar Alterações</button>
+                <button class="btn-pill-purple" style="flex:1; padding: 12px;" onclick="saveData()">Salvar Alterações</button>
                 <button class="btn-pill-purple" style="background:transparent; border: 1px solid var(--gold); color: var(--gold); padding: 12px;" onclick="closeModals()">Cancelar</button>
             </div>
         </div>
     </div>
 
-    <!-- Botões Flutuantes Staff -->
     <div class="staff-controls-panel">
         <button class="staff-logout" title="Sair do Modo Staff" onclick="logoutStaff()">✕</button>
         <button class="staff-trigger" title="Entrar no Modo Staff" onclick="openStaffLogin()">⚙️</button>
     </div>
 
-    <!-- SCRIPT ÚNICO (Conexão Supabase) -->
     <script type="module">
-        // Importa Supabase do CDN
         import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
-        // =========================================================
-        // ⚠️ CONFIGURAÇÃO SUPABASE ⚠️
-        // A URL já foi colocada com base na tua imagem!
-        // Copia a chave "anon public" do teu painel e cola em baixo:
-        // =========================================================
         const supabaseUrl = 'https://afrhflyibkjywsuefgno.supabase.co';
         const supabaseKey = 'sb_publishable_oteHwr_i_hGi8SFBDzZCmA_K5z7hjG5'; 
         
         let supabase = null;
-        try {
-            if (supabaseKey !== 'COLA_AQUI_A_TUA_CHAVE_ANON_PUBLIC') {
-                supabase = createClient(supabaseUrl, supabaseKey);
-            }
-        } catch(e) { console.error("Erro ao iniciar Supabase", e); }
+        try { supabase = createClient(supabaseUrl, supabaseKey); } 
+        catch(e) { console.error("Erro ao iniciar Supabase", e); }
 
         let portfolio = {
             title: "Sofia | Buuh",
@@ -298,18 +302,17 @@
             profilePic: "https://i.pinimg.com/736x/7e/34/f4/7e34f4db31c4fd0a5eb0e7cf1f81d6ba.jpg",
             about: "Estudante de Biblioteconomia na UFSC, transformando informação em mundos imaginários e pixels em arte.",
             discord: "y_buuh",
-            modelName: "Nébula Mística",
             categories: [
                 { id: 'lore', title: 'Escrita', icon: '📜', desc: 'Narrativas, lore e backgrounds.', samples: [], prices: [] },
-                { id: 'skins', title: 'Ateliê', icon: '✨', desc: 'Modelagem e texturização 3D.', samples: [], prices: [] },
-                { id: 'systems', title: 'Sistemas', icon: '📂', desc: 'Organização e arquitetura Notion.', samples: [], prices: [] }
+                { id: 'skins', title: 'Ateliê', icon: '✨', desc: 'Modelagem e texturização 3D.', samples: [], prices: [] }
             ]
         };
 
         let currentView = 'home';
         let editState = { type: null, targetId: null };
+        window.active3DViews = []; // Guarda os renderizadores para evitar travamentos
 
-        // Expondo as funções principais para o window para que os eventos HTML funcionem
+        // Expondo funções
         window.changeView = function(id, pushHistory = true) {
             const container = document.getElementById('app-content');
             container.classList.remove('visible');
@@ -319,7 +322,7 @@
                 container.classList.add('visible');
                 if (pushHistory) history.pushState({ view: id }, "", "#" + id);
                 window.scrollTo({ top: 0, behavior: 'smooth' });
-                if (id === 'skins') setTimeout(init3D, 50);
+                setTimeout(init3DModels, 100); // Inicia os modelos 3D se existirem
             }, 400);
         };
 
@@ -350,7 +353,6 @@
                             <div class="editable-hover" style="opacity: 0.9; line-height: 1.6;" onclick="if(document.body.classList.contains('is-staff')) window.openEditor('profile')" title="Clique para editar sobre mim">
                                 ${portfolio.about}
                             </div>
-                            
                             <div class="staff-only staff-flex" style="margin-top: 25px; gap: 15px; flex-wrap: wrap;">
                                 <button class="btn-pill-purple" onclick="window.openEditor('header')">✏️ Titulo & Tagline</button>
                                 <button class="btn-pill-purple" onclick="window.openEditor('profile')">✏️ Foto & Bio</button>
@@ -369,8 +371,8 @@
                             <div class="card-body">${cat.desc}</div>
                             
                             <div class="staff-only staff-flex" style="padding: 15px; border-top: 1px solid var(--glass-border); gap: 10px; justify-content: center;">
-                                <button class="btn-pill-purple" style="flex:1; justify-content: center;" onclick="event.stopPropagation(); window.openEditor('edit-cat', '${cat.id}')">Editar</button>
-                                <button class="btn-pill-red" style="flex:1; justify-content: center;" onclick="event.stopPropagation(); window.deleteCategory('${cat.id}')">Excluir</button>
+                                <button class="btn-pill-purple" style="flex:1;" onclick="event.stopPropagation(); window.openEditor('edit-cat', '${cat.id}')">Editar</button>
+                                <button class="btn-pill-red" style="flex:1;" onclick="event.stopPropagation(); window.deleteCategory('${cat.id}')">Excluir</button>
                             </div>
                         </div>
                     `).join('')}
@@ -384,7 +386,7 @@
                 </nav>
 
                 <section style="text-align:center;">
-                    <div class="editable-hover" onclick="if(document.body.classList.contains('is-staff')) window.openEditor('discord')" style="background:var(--glass); display:inline-block; padding:15px 40px; border-radius:50px; border:1px solid var(--glass-border); backdrop-filter:blur(10px);" title="Clique para editar Discord">
+                    <div class="editable-hover" onclick="if(document.body.classList.contains('is-staff')) window.openEditor('discord')" style="background:var(--glass); display:inline-block; padding:15px 40px; border-radius:50px; border:1px solid var(--glass-border); backdrop-filter:blur(10px);">
                         🎮 Discord: <strong style="color:var(--gold); margin-left: 5px;">${portfolio.discord}</strong>
                     </div>
                 </section>
@@ -395,6 +397,48 @@
         function renderCategory(catId) {
             const cat = portfolio.categories.find(c => c.id === catId);
             if (!cat) return window.changeView('home');
+
+            // Renderiza as Amostras dependendo do tipo (Texto, Imagem, 3D)
+            let samplesHTML = cat.samples.map(s => {
+                let type = s.type || 'text'; // Fallback para categorias antigas
+                let adminBtn = `<div class="staff-only staff-flex" style="position:absolute; top:15px; right:15px; z-index:10;"><button class="btn-pill-red" onclick="window.deleteItem('${cat.id}', 'samples', ${s.id})">Remover</button></div>`;
+
+                if (type === 'text') {
+                    return `
+                    <div class="lore-entry">
+                        ${adminBtn}
+                        <div class="lore-thumb">📄</div>
+                        <div class="lore-details">
+                            <h4>${s.title}</h4>
+                            <p style="margin-bottom:15px; opacity:.8;">${s.desc}</p>
+                            ${s.url ? `<a href="${s.url}" target="_blank" style="color:var(--gold); text-decoration:none; font-weight:600;">Ver Trabalho ↗</a>` : ''}
+                        </div>
+                    </div>`;
+                } 
+                else if (type === 'image') {
+                    return `
+                    <div class="visual-entry">
+                        ${adminBtn}
+                        <img src="${s.url}" style="width:100%; height:300px; object-fit:cover; border-bottom: 1px solid var(--glass-border);">
+                        <div style="padding:20px;">
+                            <h4>${s.title}</h4>
+                            <p style="opacity:.8;">${s.desc}</p>
+                        </div>
+                    </div>`;
+                } 
+                else if (type === 'model3d') {
+                    return `
+                    <div class="visual-entry">
+                        ${adminBtn}
+                        <div class="model-viewport" data-gltf="${s.url}"></div>
+                        <div style="padding:20px; text-align:center;">
+                            <h4>${s.title}</h4>
+                            <p style="opacity:.8;">${s.desc}</p>
+                            <small style="color:var(--purple-bright);">Arraste para rodar o modelo</small>
+                        </div>
+                    </div>`;
+                }
+            }).join('');
 
             const container = document.getElementById('app-content');
             container.innerHTML = `
@@ -409,27 +453,12 @@
                     </div>
 
                     <div id="tab-samples" class="tab-pane active">
-                        ${catId === 'skins' ? `
-                            <div style="text-align:center; margin-bottom:20px; display: flex; justify-content: center; align-items: center; gap: 15px;">
-                                <span class="editable-hover" onclick="if(document.body.classList.contains('is-staff')) window.openEditor('model-name')" style="color:var(--gold); font-size:1.4rem; font-family:'Playfair Display';">${portfolio.modelName}</span>
-                            </div>
-                            <div id="viewport"></div>
-                        ` : `
-                            ${cat.samples.length === 0 ? '<p style="opacity:0.5; text-align:center; padding: 40px;">Ainda não existem amostras aqui.</p>' : ''}
-                            ${cat.samples.map(s => `
-                                <div class="lore-entry">
-                                    <div class="lore-thumb">📄</div>
-                                    <div class="lore-details">
-                                        <h4>${s.title}</h4>
-                                        <p style="margin-bottom:15px; opacity:.8;">${s.desc}</p>
-                                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                                            <a href="${s.url}" target="_blank" style="color:var(--gold); text-decoration:none; font-weight:600;">Ver Trabalho ↗</a>
-                                            <button class="staff-only btn-pill-red" onclick="window.deleteItem('${cat.id}', 'samples', ${s.id})">Remover</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            `).join('')}
-                        `}
+                        ${cat.samples.length === 0 ? '<p style="opacity:0.5; text-align:center; padding: 40px;">Ainda não existem amostras aqui.</p>' : ''}
+                        
+                        <div class="samples-grid">
+                            ${samplesHTML}
+                        </div>
+                        
                         <div class="staff-only" style="margin-top: 30px; text-align: center;">
                             <button class="btn-pill-purple" onclick="window.openEditor('add-sample', '${cat.id}')">+ Adicionar Amostra</button>
                         </div>
@@ -463,24 +492,21 @@
             document.getElementById(id).classList.add('active');
         };
 
-        // STAFF FUNÇÕES
+        // ==========================================
+        // STAFF & EDIÇÃO
+        // ==========================================
         window.openStaffLogin = () => document.getElementById('login-modal').classList.add('active');
         window.closeModals = () => document.querySelectorAll('.modal').forEach(m => m.classList.remove('active'));
         
         window.checkStaff = function() {
-            const pass = document.getElementById('staff-pass').value.trim();
-            if (pass === 'admin123') {
+            if (document.getElementById('staff-pass').value.trim() === 'admin123') {
                 document.body.classList.add('is-staff');
                 window.closeModals();
                 document.getElementById('staff-pass').value = '';
-            } else {
-                alert("Senha incorreta.");
-            }
+            } else { alert("Senha incorreta."); }
         };
 
-        window.logoutStaff = function() {
-            document.body.classList.remove('is-staff');
-        };
+        window.logoutStaff = () => document.body.classList.remove('is-staff');
 
         window.openEditor = function(type, targetId = null) {
             editState = { type, targetId };
@@ -490,44 +516,34 @@
             
             if (type === 'header') {
                 title.innerText = "Textos Principais";
-                fields.innerHTML = `
-                    <label>Título do Site</label><input id="inp-title" value="${portfolio.title}">
-                    <label>Frase de Efeito (Tagline)</label><input id="inp-tag" value="${portfolio.tagline}">
-                `;
+                fields.innerHTML = `<label>Título do Site</label><input id="inp-title" value="${portfolio.title}"><label>Frase de Efeito (Tagline)</label><input id="inp-tag" value="${portfolio.tagline}">`;
             } else if (type === 'profile') {
                 title.innerText = "Perfil";
-                fields.innerHTML = `
-                    <label>URL da Foto (Link direto da imagem)</label><input id="inp-pic" value="${portfolio.profilePic}">
-                    <label>Sobre Mim (HTML permitido)</label><textarea id="inp-about" rows="6">${portfolio.about}</textarea>
-                `;
+                fields.innerHTML = `<label>URL da Foto</label><input id="inp-pic" value="${portfolio.profilePic}"><label>Sobre Mim</label><textarea id="inp-about" rows="6">${portfolio.about}</textarea>`;
             } else if (type === 'discord') {
                 title.innerText = "Contato";
                 fields.innerHTML = `<label>Usuário Discord</label><input id="inp-discord" value="${portfolio.discord}">`;
-            } else if (type === 'model-name') {
-                title.innerText = "Nome do Modelo 3D";
-                fields.innerHTML = `<label>Nome de exibição</label><input id="inp-modelname" value="${portfolio.modelName}">`;
             } else if (type === 'add-cat' || type === 'edit-cat') {
                 const isEdit = type === 'edit-cat';
                 const cat = isEdit ? portfolio.categories.find(c => c.id === targetId) : { title: '', icon: '', desc: '' };
                 title.innerText = isEdit ? "Editar Categoria" : "Nova Categoria";
-                fields.innerHTML = `
-                    <label>Título do Card</label><input id="inp-cat-title" value="${cat.title}">
-                    <label>Ícone (Emoji)</label><input id="inp-cat-icon" value="${cat.icon}">
-                    <label>Breve Descrição</label><input id="inp-cat-desc" value="${cat.desc}">
-                `;
+                fields.innerHTML = `<label>Título</label><input id="inp-cat-title" value="${cat.title}"><label>Ícone (Emoji)</label><input id="inp-cat-icon" value="${cat.icon}"><label>Descrição</label><input id="inp-cat-desc" value="${cat.desc}">`;
             } else if (type === 'add-sample') {
                 title.innerText = "Adicionar Amostra";
                 fields.innerHTML = `
+                    <label>Tipo de Item</label>
+                    <select id="inp-sam-type">
+                        <option value="text">Texto / Lore / Documento</option>
+                        <option value="image">Imagem (Arte, Print, etc)</option>
+                        <option value="model3d">Modelo 3D (.gltf ou .glb)</option>
+                    </select>
                     <label>Título</label><input id="inp-sam-title">
-                    <label>Resumo</label><input id="inp-sam-desc">
-                    <label>Link (URL)</label><input id="inp-sam-url">
+                    <label>Resumo / Descrição</label><input id="inp-sam-desc">
+                    <label>URL (Link, Imagem ou arquivo .gltf)</label><input id="inp-sam-url" placeholder="https://...">
                 `;
             } else if (type === 'add-price') {
                 title.innerText = "Adicionar Preço";
-                fields.innerHTML = `
-                    <label>Serviço</label><input id="inp-pr-label">
-                    <label>Valor</label><input id="inp-pr-val">
-                `;
+                fields.innerHTML = `<label>Serviço</label><input id="inp-pr-label"><label>Valor</label><input id="inp-pr-val">`;
             }
             modal.classList.add('active');
         };
@@ -542,22 +558,20 @@
                 portfolio.about = document.getElementById('inp-about').value;
             } else if (type === 'discord') {
                 portfolio.discord = document.getElementById('inp-discord').value;
-            } else if (type === 'model-name') {
-                portfolio.modelName = document.getElementById('inp-modelname').value;
             } else if (type === 'add-cat') {
-                portfolio.categories.push({
-                    id: 'cat_' + Date.now(), title: document.getElementById('inp-cat-title').value,
-                    icon: document.getElementById('inp-cat-icon').value, desc: document.getElementById('inp-cat-desc').value,
-                    samples: [], prices: []
-                });
+                portfolio.categories.push({ id: 'cat_' + Date.now(), title: document.getElementById('inp-cat-title').value, icon: document.getElementById('inp-cat-icon').value, desc: document.getElementById('inp-cat-desc').value, samples: [], prices: [] });
             } else if (type === 'edit-cat') {
                 const cat = portfolio.categories.find(c => c.id === targetId);
-                cat.title = document.getElementById('inp-cat-title').value;
-                cat.icon = document.getElementById('inp-cat-icon').value;
-                cat.desc = document.getElementById('inp-cat-desc').value;
+                cat.title = document.getElementById('inp-cat-title').value; cat.icon = document.getElementById('inp-cat-icon').value; cat.desc = document.getElementById('inp-cat-desc').value;
             } else if (type === 'add-sample') {
                 const cat = portfolio.categories.find(c => c.id === targetId);
-                cat.samples.push({ id: Date.now(), title: document.getElementById('inp-sam-title').value, desc: document.getElementById('inp-sam-desc').value, url: document.getElementById('inp-sam-url').value });
+                cat.samples.push({ 
+                    id: Date.now(), 
+                    type: document.getElementById('inp-sam-type').value,
+                    title: document.getElementById('inp-sam-title').value, 
+                    desc: document.getElementById('inp-sam-desc').value, 
+                    url: document.getElementById('inp-sam-url').value 
+                });
             } else if (type === 'add-price') {
                 const cat = portfolio.categories.find(c => c.id === targetId);
                 cat.prices.push({ id: Date.now(), label: document.getElementById('inp-pr-label').value, price: document.getElementById('inp-pr-val').value });
@@ -565,102 +579,124 @@
             window.closeModals();
             await saveDB();
             refreshView();
+            if (currentView !== 'home') setTimeout(init3DModels, 100);
         };
 
         window.deleteCategory = async function(id) {
             if (!confirm("Tem certeza que deseja apagar a categoria inteira?")) return;
             portfolio.categories = portfolio.categories.filter(c => c.id !== id);
-            await saveDB();
-            refreshView();
+            await saveDB(); refreshView();
         };
 
         window.deleteItem = async function(catId, type, itemId) {
             if (!confirm("Remover este item?")) return;
             const cat = portfolio.categories.find(c => c.id === catId);
             cat[type] = cat[type].filter(i => i.id !== itemId);
-            await saveDB();
-            refreshView();
+            await saveDB(); refreshView();
+            if (currentView !== 'home') setTimeout(init3DModels, 100);
         };
 
-        // =========================================================
-        // FUNÇÕES SUPABASE (Substitui o Firebase)
-        // =========================================================
+        // ==========================================
+        // BANCO DE DADOS (SUPABASE)
+        // ==========================================
         async function syncDB() {
             if (!supabase) return;
             try {
-                // Busca os dados na tabela 'portfolio_data' onde a linha seja id='main'
-                const { data, error } = await supabase
-                    .from('portfolio_data')
-                    .select('content')
-                    .eq('id', 'main')
-                    .single();
-                
-                if (data && data.content) {
-                    portfolio = data.content;
-                } else {
-                    // Se a tabela estiver vazia, guarda o json default
-                    await supabase.from('portfolio_data').insert([{ id: 'main', content: portfolio }]);
-                }
-
+                const { data, error } = await supabase.from('portfolio_data').select('content').eq('id', 'main').single();
+                if (data && data.content) portfolio = data.content;
+                else await supabase.from('portfolio_data').insert([{ id: 'main', content: portfolio }]);
                 refreshView();
-
-                // Assina o canal para mudanças em tempo real! Se editares num PC, atualiza no Telemóvel logo.
+                
                 supabase.channel('custom-all-channel')
                     .on('postgres_changes', { event: '*', schema: 'public', table: 'portfolio_data', filter: 'id=eq.main' }, (payload) => {
-                        portfolio = payload.new.content;
-                        refreshView();
-                    })
-                    .subscribe();
-
-            } catch (err) {
-                console.error("Erro na leitura Supabase:", err);
-            }
+                        portfolio = payload.new.content; refreshView(); setTimeout(init3DModels, 100);
+                    }).subscribe();
+            } catch (err) { console.error("Erro na leitura Supabase:", err); }
         }
 
         async function saveDB() {
-            if (!supabase) {
-                alert("Sem Supabase configurado corretamente. Dados guardados apenas temporariamente.");
-                return;
-            }
-            try {
-                // Upsert (Faz update se existir, ou insert se for novo)
-                await supabase
-                    .from('portfolio_data')
-                    .upsert({ id: 'main', content: portfolio });
-            } catch (err) {
-                console.error("Erro ao salvar Supabase:", err);
-            }
+            if (!supabase) return;
+            try { await supabase.from('portfolio_data').upsert({ id: 'main', content: portfolio }); } 
+            catch (err) { console.error("Erro ao salvar Supabase:", err); }
         }
 
-        // INIT THREE JS
-        let scene, camera, renderer, model;
-        function init3D() {
-            const container = document.getElementById('viewport');
-            if (!container) return;
-            container.innerHTML = '';
-            scene = new THREE.Scene();
-            camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
-            camera.position.z = 5;
-            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-            renderer.setSize(container.clientWidth, container.clientHeight);
-            container.appendChild(renderer.domElement);
-            scene.add(new THREE.AmbientLight(0xffffff, 1.3));
-            const light = new THREE.PointLight(0x9d4edd, 2);
-            light.position.set(5, 5, 5);
-            scene.add(light);
-            const geo = new THREE.IcosahedronGeometry(1.4, 1);
-            const mat = new THREE.MeshPhongMaterial({ color: 0x7b2cbf, emissive: 0x3c096c, wireframe: true });
-            model = new THREE.Mesh(geo, mat);
-            scene.add(model);
-            function animate3D() {
-                requestAnimationFrame(animate3D);
-                if (model) { model.rotation.y += .005; model.rotation.x += .002; }
-                renderer.render(scene, camera);
-            }
-            animate3D();
+        // ==========================================
+        // MÚLTIPLOS MODELOS 3D (Minecraft GLTF)
+        // ==========================================
+        function init3DModels() {
+            // Limpa modelos antigos para não travar a memória do PC/Telemóvel
+            window.active3DViews.forEach(view => {
+                cancelAnimationFrame(view.frameId);
+                view.renderer.dispose();
+            });
+            window.active3DViews = [];
+
+            const containers = document.querySelectorAll('.model-viewport');
+            const loader = new THREE.GLTFLoader();
+
+            containers.forEach(container => {
+                const url = container.getAttribute('data-gltf');
+                if (!url) return;
+
+                const scene = new THREE.Scene();
+                const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
+                camera.position.z = 3; 
+
+                const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+                renderer.setSize(container.clientWidth, container.clientHeight);
+                container.appendChild(renderer.domElement);
+
+                // Permite girar o modelo com o rato
+                const controls = new THREE.OrbitControls(camera, renderer.domElement);
+                controls.enableDamping = true;
+                controls.autoRotate = true;
+                controls.autoRotateSpeed = 2.0;
+
+                const ambient = new THREE.AmbientLight(0xffffff, 1.2);
+                scene.add(ambient);
+                const light = new THREE.DirectionalLight(0xffffff, 1);
+                light.position.set(5, 10, 7);
+                scene.add(light);
+
+                loader.load(url, (gltf) => {
+                    const model = gltf.scene;
+                    
+                    // Magia para Minecraft: Filtro Pixelado para a skin não ficar borrada
+                    model.traverse((child) => {
+                        if (child.isMesh && child.material && child.material.map) {
+                            child.material.map.magFilter = THREE.NearestFilter;
+                            child.material.map.minFilter = THREE.NearestFilter;
+                            child.material.needsUpdate = true;
+                        }
+                    });
+
+                    // Centraliza o modelo automaticamente na tela
+                    const box = new THREE.Box3().setFromObject(model);
+                    const center = box.getCenter(new THREE.Vector3());
+                    model.position.sub(center); 
+                    
+                    scene.add(model);
+                }, undefined, (error) => {
+                    console.error("Erro ao carregar modelo GLTF:", error);
+                    container.innerHTML = `<div style="color:#ff4d4d; padding:20px; text-align:center;">Erro ao carregar ficheiro 3D.<br>Verifique se o Link termina em .gltf ou .glb</div>`;
+                });
+
+                const viewData = { scene, camera, renderer, controls, frameId: null };
+                
+                function animate() {
+                    viewData.frameId = requestAnimationFrame(animate);
+                    controls.update();
+                    renderer.render(scene, camera);
+                }
+                animate();
+
+                window.active3DViews.push(viewData);
+            });
         }
 
-        // INIT PARTICLES
+        // ==========================================
+        // FUNDO ANIMADO
+        // ==========================================
         const canvas = document.getElementById('star-canvas');
         const ctx = canvas.getContext('2d');
         let particles = [];
@@ -687,7 +723,9 @@
             requestAnimationFrame(animateStars);
         }
 
-        // LOAD EVENTS
+        // ==========================================
+        // INIT
+        // ==========================================
         window.onpopstate = (e) => {
             const viewId = (e.state && e.state.view) ? e.state.view : 'home';
             window.changeView(viewId, false);
@@ -695,9 +733,7 @@
 
         window.addEventListener('DOMContentLoaded', async () => {
             resizeCanvas(); createParticles(); animateStars();
-            
             await syncDB();
-
             const hash = location.hash.replace('#', '');
             if (hash && hash !== 'home') window.changeView(hash, false);
             else window.changeView('home', false);
