@@ -1,672 +1,445 @@
-
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sofia | Buuh - Portfólio Estelar</title>
+    <title>Grimório: Caderno em Branco</title>
     
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
-    
-    <!-- MODEL VIEWER EM VEZ DO THREE.JS -->
-    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Caveat:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        :root {
-            --bg: #050208;
-            --purple-main: #7b2cbf;
-            --purple-bright: #9d4edd;
-            --gold: #ffcc00;
-            --text: #e0d7ff;
-            --glass: rgba(255, 255, 255, 0.03);
-            --glass-border: rgba(123, 44, 191, 0.3);
-            --transition: all .4s cubic-bezier(.16,1,.3,1);
-        }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        body {
-            font-family: 'Poppins', sans-serif;
-            background: #050208;
-            color: var(--text);
-            overflow-x: hidden;
-            min-height: 100vh;
-        }
-
-        /* ===================================== */
-        /* BACKGROUND ANIMADO */
-        /* ===================================== */
-        #star-canvas {
-            position: fixed; inset: 0; width: 100%; height: 100%;
-            z-index: -3; background: radial-gradient(circle at top, #13051f 0%, #07020d 40%, #020104 100%);
-        }
-
-        .nebula {
-            position: fixed; inset: 0; z-index: -2; pointer-events: none;
-            background: 
-                radial-gradient(circle at 20% 30%, rgba(123,44,191,0.25), transparent 30%),
-                radial-gradient(circle at 80% 70%, rgba(157,78,221,0.18), transparent 35%),
-                radial-gradient(circle at center, rgba(255,255,255,0.02), transparent 60%);
-            filter: blur(80px);
-            animation: nebulaMove 18s ease-in-out infinite alternate;
-        }
-
-        @keyframes nebulaMove {
-            0% { transform: scale(1) rotate(0deg); }
-            100% { transform: scale(1.1) rotate(5deg); }
-        }
-
-        /* ===================================== */
-        /* LAYOUT & TIPOGRAFIA */
-        /* ===================================== */
-        .container { max-width: 1100px; margin: auto; padding: 40px 20px; }
-        header { padding: 50px 20px; text-align: center; }
-
-        h1 {
-            font-family: 'Playfair Display', serif;
-            font-size: clamp(3rem, 12vw, 5.5rem);
-            color: white; line-height: 1; margin-bottom: 10px;
-            text-shadow: 0 0 25px var(--purple-main), 0 0 50px rgba(157,78,221,.3);
-        }
-
-        .tagline {
-            font-size: .85rem; letter-spacing: 5px; color: var(--gold);
-            text-transform: uppercase; opacity: .8;
-        }
-
-        /* ===================================== */
-        /* PAINEL DE VIDRO E PERFIL */
-        /* ===================================== */
-        .glass-panel {
-            background: var(--glass);
-            border: 1px solid var(--glass-border);
-            padding: 45px; border-radius: 35px;
-            backdrop-filter: blur(25px); margin-bottom: 40px;
-            position: relative; overflow: hidden;
-            box-shadow: 0 20px 60px rgba(0,0,0,.6);
-        }
-
-        .profile-section { display: flex; gap: 40px; align-items: center; }
-        .profile-img-container {
-            width: 170px; height: 170px; border-radius: 50%; overflow: hidden;
-            flex-shrink: 0; border: 2px solid var(--purple-bright);
-            position: relative; box-shadow: 0 0 30px rgba(157,78,221,.5);
-        }
-        .profile-img-container img { width: 100%; height: 100%; object-fit: cover; background: #111; }
-
-        .sub-header {
-            font-family: 'Playfair Display', serif; font-size: 2.2rem;
-            margin-bottom: 20px; display: flex; align-items: center; gap: 15px; color: white;
-        }
-        .sub-header::after {
-            content: ""; flex: 1; height: 1px;
-            background: linear-gradient(to right, var(--purple-main), transparent);
-        }
-
-        /* ===================================== */
-        /* CARDS E LISTAS */
-        /* ===================================== */
-        .main-grid {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 25px; margin-bottom: 60px;
-        }
-
-        .nav-card {
-            position: relative; overflow: hidden;
-            background: linear-gradient(160deg, rgba(123,44,191,.08), rgba(255,255,255,.01));
-            border: 1px solid var(--glass-border); border-radius: 30px;
-            cursor: pointer; transition: var(--transition);
-            text-align: center; display: flex; flex-direction: column;
-        }
-        .nav-card:hover { transform: translateY(-10px); border-color: var(--gold); box-shadow: 0 15px 40px rgba(123,44,191,.3); }
-        .card-head { padding: 40px 20px 10px; }
-        .card-icon { font-size: 2.8rem; margin-bottom: 15px; display: block; filter: drop-shadow(0 0 10px var(--purple-bright)); }
-        .card-body { padding: 0 30px 40px; font-size: .9rem; opacity: .7; line-height: 1.6; }
-
-        /* ===================================== */
-        /* TABS & GALERIA */
-        /* ===================================== */
-        .tabs-container {
-            display: flex; gap: 5px;
-            border-bottom: 1px solid var(--glass-border);
-            padding-bottom: 15px; margin-bottom: 35px; width: 100%;
-        }
-        .tab-btn {
-            background: transparent; border: none; color: rgba(255,255,255,0.5);
-            padding: 10px 25px; cursor: pointer; font-family: inherit;
-            font-weight: 600; border-radius: 12px; transition: .3s; font-size: 1rem;
-        }
-        .tab-btn.active { background: #8a2be2; color: white; opacity: 1; box-shadow: 0 0 15px rgba(138,43,226,0.5); }
-        .tab-pane { display: none; }
-        .tab-pane.active { display: block; animation: fadeIn .4s ease; }
-        @keyframes fadeIn { from{opacity:0;} to{opacity:1;} }
-
-        /* Grid para galeria mista (Imagens e 3D) */
-        .samples-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 25px;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background: radial-gradient(circle at 80% 20%, #703600 0%, #291201 50%, #0a0400 100%); height: 100vh; display: flex; justify-content: center; align-items: center; overflow: hidden; color: #2c2c2c; font-family: 'Caveat', cursive;}
         
-        .samples-grid .lore-entry { grid-column: 1 / -1; } /* Texto ocupa a linha toda */
-
-        .lore-entry {
-            background: rgba(255,255,255,.02); border: 1px solid var(--glass-border);
-            border-radius: 25px; display: flex; overflow: hidden; align-items: center; position: relative;
-        }
-        .lore-thumb {
-            width: 120px; background: #0c051a; display: flex; align-items: center; justify-content: center;
-            font-size: 2.5rem; flex-shrink: 0; align-self: stretch;
-        }
-        .lore-details { padding: 25px; flex-grow: 1; }
-        .lore-details h4 { font-family: 'Playfair Display', serif; color: var(--gold); font-size: 1.5rem; margin-bottom: 5px; }
-
-        .visual-entry {
-            background: rgba(255,255,255,.02); border: 1px solid var(--glass-border);
-            border-radius: 25px; overflow: hidden; position: relative; display: flex; flex-direction: column;
-        }
-        .visual-entry h4 { font-family: 'Playfair Display', serif; color: var(--gold); font-size: 1.5rem; margin-bottom: 5px; }
+        .mesa { perspective: 2000px; transition: transform 1s; display: flex; align-items: center; }
+        .livro { width: 500px; height: 700px; position: relative; transform-style: preserve-3d; transition: transform 1s;}
         
-        /* Estilos do Model Viewer */
-        .model-viewport { 
-            width: 100%; height: 300px; 
-            background: rgba(0,0,0,0.5); outline: none;
-            --poster-color: transparent; 
-        }
-
-        .price-row {
-            background: rgba(255,204,0,.02); border: 1px solid rgba(255,204,0,.1);
-            padding: 22px 30px; border-radius: 18px; display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 15px;
-        }
-
-        /* ===================================== */
-        /* BOTÕES DE STAFF */
-        /* ===================================== */
-        .staff-only { display: none !important; }
-        body.is-staff .staff-only { display: block !important; }
-        body.is-staff .staff-only.staff-flex { display: flex !important; }
-
-        .btn-pill-purple {
-            background: #8a2be2; color: white; border: none; border-radius: 20px;
-            padding: 8px 20px; cursor: pointer; font-family: 'Poppins', sans-serif;
-            font-weight: 600; font-size: 0.85rem; transition: .3s;
-            display: inline-flex; align-items: center; justify-content: center; gap: 6px;
-            box-shadow: 0 4px 10px rgba(138,43,226,0.3);
-        }
-        .btn-pill-purple:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(138,43,226,0.5); }
-
-        .btn-pill-red {
-            background: #ff4d4d; color: white; border: none; border-radius: 20px;
-            padding: 8px 20px; cursor: pointer; font-family: 'Poppins', sans-serif;
-            font-weight: 600; font-size: 0.85rem; transition: .3s;
-            display: inline-flex; align-items: center; justify-content: center; gap: 6px;
-            box-shadow: 0 4px 10px rgba(255,77,77,0.3);
-        }
-        .btn-pill-red:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(255,77,77,0.5); }
-
-        .btn-back {
-            background: none; border: 1px solid var(--gold); color: var(--gold);
-            padding: 10px 30px; border-radius: 50px; cursor: pointer; margin-bottom: 25px; transition: .3s;
-        }
-        .btn-back:hover { background: var(--gold); color: var(--bg); }
-
-        /* Controles de Logout/Acesso */
-        .staff-controls-panel { position: fixed; bottom: 30px; right: 30px; display: flex; gap: 12px; z-index: 1000; }
-        .staff-trigger, .staff-logout {
-            width: 55px; height: 55px; border-radius: 50%; border: none; cursor: pointer;
-            color: white; font-size: 1.1rem; transition: .3s; display: flex; align-items: center; justify-content: center;
-        }
-        .staff-trigger { background: var(--purple-main); box-shadow: 0 0 20px rgba(123,44,191,.5); }
-        .staff-trigger:hover { transform: rotate(90deg) scale(1.1); }
-        body.is-staff .staff-trigger { display: none; }
-        .staff-logout { background: #ff4d4d; display: none; }
-        body.is-staff .staff-logout { display: flex; }
-        .staff-logout:hover { transform: scale(1.1); }
-
-        /* Clique direto para editar */
-        body.is-staff .editable-hover { cursor: pointer; transition: 0.3s; padding: 5px; border-radius: 8px; border: 1px dashed transparent; }
-        body.is-staff .editable-hover:hover { border-color: var(--gold); background: rgba(255,255,255,0.05); }
-
-        /* ===================================== */
-        /* MODAIS */
-        /* ===================================== */
-        .modal {
-            position: fixed; inset: 0; display: none; align-items: center; justify-content: center;
-            background: rgba(0,0,0,.85); backdrop-filter: blur(10px); z-index: 9999;
-        }
-        .modal.active { display: flex; }
-        .modal-content {
-            width: min(500px, 90%); background: #0d0718; border: 1px solid rgba(255,255,255,.08);
-            border-radius: 30px; padding: 35px; box-shadow: 0 0 40px rgba(123,44,191,.35);
-            max-height: 90vh; overflow-y: auto;
-        }
-        input, textarea, select {
-            width: 100%; padding: 15px 20px; margin: 8px 0 15px 0; background: rgba(255,255,255,.04);
-            border: 1px solid var(--glass-border); border-radius: 12px; color: white; font-family: inherit;
-        }
-        select option { background: #0d0718; color: white; }
-        label { font-size: 0.85rem; color: var(--gold); margin-left: 5px; }
+        /* Capa */
+        .capa-container { width: 100%; height: 100%; position: absolute; top: 0; left: 0; transform-origin: left center; transform-style: preserve-3d; transition: transform 1.2s; z-index: 10; cursor: pointer; }
+        .livro-aberto .capa-container { transform: rotateY(-180deg); box-shadow: 20px 20px 40px rgba(0,0,0,0.8); cursor: default; }
         
-        .view-wrapper { opacity: 0; transform: translateY(20px); transition: var(--transition); }
-        .view-wrapper.visible { opacity: 1; transform: translateY(0); }
+        .capa-frente { width: 100%; height: 100%; position: absolute; backface-visibility: hidden; background: #172419; border-radius: 3px 15px 15px 3px; box-shadow: inset 10px 0 20px rgba(0,0,0,0.6), 10px 10px 20px rgba(0,0,0,0.8); display: flex; flex-direction: column; justify-content: center; align-items: center; border: 1px solid #0a120b; }
+        .capa-frente::before { content: ''; position: absolute; top: 25px; bottom: 25px; left: 45px; right: 25px; border: 2px solid #b8860b; border-radius: 2px 10px 10px 2px; }
+        .lombada-frente { position: absolute; left: 0; top: 0; bottom: 0; width: 35px; background: linear-gradient(to right, #050a06, #172419, #050a06); border-right: 2px solid #050a06; }
+        .titulo-capa { color: #b8860b; font-family: 'Cinzel', serif; font-size: 46px; text-align: center; text-shadow: 2px 2px 5px rgba(0,0,0,0.9); margin: 20px 0; outline: none;}
+        .subtitulo-capa { color: #b8860b; font-family: 'Cinzel', serif; letter-spacing: 2px; font-size: 20px; outline: none;}
 
-        @media(max-width:850px){
-            .profile-section{ flex-direction:column; text-align:center; }
-            .lore-entry{ flex-direction:column; }
-            .lore-thumb{ width:100%; height:100px; border-radius: 25px 25px 0 0; }
-        }
+        /* Páginas Internas Estáticas */
+        .pagina { background-color: #e8d8bd; background-image: radial-gradient(circle at 100% 0%, rgba(255, 170, 50, 0.15) 0%, transparent 50%), radial-gradient(circle at center, transparent 30%, #c2a878 120%); font-size: 28px; line-height: 1.2; letter-spacing: 0.5px; color: #1f1107; overflow: hidden; position: absolute; height: 100%; width: 100%; }
+        .capa-verso { backface-visibility: hidden; transform: rotateY(180deg); border-radius: 15px 3px 3px 15px; box-shadow: inset -10px 0 30px rgba(0,0,0,0.2); }
+        .pagina-direita { top: 0; left: 0; border-radius: 3px 15px 15px 3px; box-shadow: inset 10px 0 30px rgba(0,0,0,0.2), 15px 15px 40px rgba(0,0,0,0.8); z-index: 1; }
+        
+        .conteudo-pagina { width: 100%; height: 100%; padding: 40px 50px; overflow-y: auto; overflow-x: hidden; position: relative; }
+        .conteudo-pagina::-webkit-scrollbar { width: 5px; }
+        .conteudo-pagina::-webkit-scrollbar-thumb { background: rgba(31, 17, 7, 0.3); border-radius: 10px; }
+
+        /* Dobradiça para Fechar */
+        .dobradica-clicavel { position: absolute; left: -30px; top: 0; bottom: 0; width: 60px; cursor: pointer; z-index: 2000; display: none; }
+        .livro-aberto .dobradica-clicavel { display: block; }
+        .sombra-centro-esq { position: absolute; right: 0; top: 0; bottom: 0; width: 50px; background: linear-gradient(to left, rgba(60, 30, 10, 0.3), transparent); pointer-events: none; z-index: 900; }
+        .sombra-centro-dir { position: absolute; left: 0; top: 0; bottom: 0; width: 50px; background: linear-gradient(to right, rgba(60, 30, 10, 0.3), transparent); pointer-events: none; z-index: 900; }
+
+        /* ====== ANIMAÇÃO DE VIRAR PÁGINA (FLIP 3D) ====== */
+        .flip-page { position: absolute; top: 0; left: 0; width: 100%; height: 100%; transform-origin: left center; transform-style: preserve-3d; transition: transform 0.8s ease-in-out; z-index: 50; pointer-events: none; }
+        .flip-frente, .flip-verso { position: absolute; top: 0; left: 0; width: 100%; height: 100%; backface-visibility: hidden; background-color: #e8d8bd; background-image: radial-gradient(circle at 100% 0%, rgba(255, 170, 50, 0.15) 0%, transparent 50%), radial-gradient(circle at center, transparent 30%, #c2a878 120%); overflow: hidden; }
+        .flip-frente { border-radius: 3px 15px 15px 3px; box-shadow: inset 10px 0 30px rgba(0,0,0,0.2), -5px 0 20px rgba(0,0,0,0.3); }
+        .flip-verso { transform: rotateY(180deg); border-radius: 15px 3px 3px 15px; box-shadow: inset -10px 0 30px rgba(0,0,0,0.2), 5px 0 20px rgba(0,0,0,0.3); }
+
+        /* ZONAS DE CLIQUE PARA VIRAR */
+        .zona-virar { position: absolute; top: 0; bottom: 0; width: 60px; cursor: pointer; z-index: 1000; display: none; align-items: center; justify-content: center; opacity: 0; transition: 0.3s; color: rgba(184, 134, 11, 0.8); font-size: 40px; }
+        .livro-aberto .zona-virar { display: flex; }
+        .zona-virar:hover { opacity: 1; background: rgba(0,0,0,0.05); }
+        .virar-esq { left: 0; border-radius: 15px 0 0 15px; }
+        .virar-dir { right: 0; border-radius: 0 15px 15px 0; }
+
+        /* ====== ELEMENTOS DE TEXTO ESTILIZADOS ====== */
+        h2.titulo-manuscrito { font-size: 42px; font-weight: bold; margin-bottom: 20px; border-bottom: 2px solid rgba(31, 17, 7, 0.3); display: inline-block; outline: none; line-height: 1.1; min-height: 1.2em;}
+        .paragrafo-normal { margin-bottom: 20px; outline: none; position: relative; z-index: 5; min-height: 1.2em;}
+        .torto { display: block; transform: rotate(-2deg); margin-bottom: 20px; outline: none; position: relative; z-index: 5; min-height: 1.2em;}
+        .torto-direito { display: block; transform: rotate(2deg); margin-bottom: 20px; outline: none; position: relative; z-index: 5; min-height: 1.2em;}
+        .destaque { font-weight: bold; font-size: 30px; letter-spacing: 1px;}
+        
+        .elemento-arrastavel { position: absolute !important; cursor: grab; z-index: 800; mix-blend-mode: multiply; user-select: none; }
+        .imagem-customizada { max-width: 80%; height: auto; opacity: 0.85; }
+        .mancha-tinta { background: #120904; opacity: 0.80; filter: blur(1px); }
+
+        /* ====== PAINEL E EDITOR ====== */
+        .modo-editor .conteudo-pagina { outline: 2px dashed rgba(0,0,0,0.1); }
+        .modo-editor [contenteditable="true"]:hover { background: rgba(255, 255, 255, 0.15); border-radius: 5px; cursor: text; }
+        .modo-editor .elemento-arrastavel:hover { outline: 2px dashed #b8860b; border-radius: 5px; }
+        
+        /* Borda dourada bonita ao selecionar a página para o catálogo */
+        .pagina-ativa { box-shadow: inset 0 0 0 4px rgba(184, 134, 11, 0.8) !important; }
+        
+        .cursor-borracha, .cursor-borracha * { cursor: crosshair !important; }
+        .cursor-borracha [contenteditable="true"]:hover, .cursor-borracha .elemento-arrastavel:hover { background: rgba(255,0,0,0.2) !important; outline: 2px dashed red !important; }
+
+        #btn-toggle-editor { position: fixed; bottom: 20px; left: 20px; background: #172419; color: #b8860b; border: 2px solid #b8860b; padding: 10px 20px; border-radius: 8px; font-family: 'Cinzel'; cursor: pointer; z-index: 10000; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+        #painel-editor { position: fixed; right: -350px; top: 0; width: 320px; height: 100%; background: #172419; border-left: 2px solid #b8860b; padding: 20px; transition: right 0.4s ease; z-index: 9999; overflow-y: auto; color: #f4f0e6; font-family: 'Lora', serif;}
+        #painel-editor.aberto { right: 0; }
+        .ferramenta-btn { display: block; width: 100%; background: transparent; color: #e8d8bd; border: 1px solid rgba(184, 134, 11, 0.4); padding: 10px; margin-bottom: 8px; border-radius: 4px; cursor: pointer; text-align: left; transition: 0.2s; font-size: 14px;}
+        .ferramenta-btn:hover { background: rgba(184, 134, 11, 0.2); border-color: #b8860b; }
+        #upload-imagem { display: none; }
+        .btn-salvar { background: #b8860b; color: #172419; font-weight: bold; text-align: center; margin-top: 15px;}
     </style>
 </head>
-<body>
-
-    <canvas id="star-canvas"></canvas>
-    <div class="nebula"></div>
-
-    <div class="container view-wrapper" id="app-content"></div>
-
-    <div id="login-modal" class="modal">
-        <div class="modal-content" style="text-align:center;">
-            <h2 style="margin-bottom:20px; font-family: 'Playfair Display'; color: var(--gold);">Acesso Staff</h2>
-            <input type="password" id="staff-pass" placeholder="Palavra-passe">
-            <div style="display: flex; gap: 10px; justify-content: center; margin-top: 15px;">
-                <button class="btn-pill-purple" style="padding: 10px 30px;" onclick="checkStaff()">Entrar</button>
-                <button class="btn-pill-purple" style="background:transparent; border: 1px solid var(--gold); color: var(--gold); padding: 10px 30px;" onclick="closeModals()">Cancelar</button>
-            </div>
-        </div>
+<body> <div id="data-storage" style="display: none;">
+        [
+          {
+            "esq": "<h2 class=\"titulo-manuscrito\">3 de março de 1921</h2>\n<p class=\"paragrafo-normal\">Minha mãe me disse que as crianças esquecem rápido das coisas.</p>\n<p class=\"torto-direito destaque\">Talvez ela esteja certa....</p>\n<p class=\"paragrafo-normal\">Por isso decidi que irei anotar todas as coisas!!!!</p>\n<p class=\"torto\">Ou quase tudo na verdade vou tentar...</p>\n<p class=\"paragrafo-normal\">Tenho nove anos e eu acho que eu já percebi algo estranho nas pessoas adultas elas tendem fingem que lembram das coisas que entendem de tudo. Fingem muito bem mas não o suficiente. Elas esquecem e mentem acima de tudo buscando sempre estarem certas.</p>\n<p class=\"torto\">Não sei exatamente o motivo disso</p>",
+            "dir": "<h2 class=\"titulo-manuscrito\">12 de março de 1921</h2>\n<p class=\"paragrafo-normal\">Tenho uma casa pequena e simples, infelizmente pequena demais para quatro pessoas. Mas eu não me importo pelo menos ficamos bem juntos.</p>\n<p class=\"paragrafo-normal\">Quando chove, a água escorre perto da janela da cozinha e meu pai fica irritado porque acha desperdício usar baldes bons para conter goteira. Minha mãe canta enquanto cozinha mesmo quando está triste. Principalmente quando está triste.</p>\n<p class=\"torto-direito destaque\">Ela sempre está triste..<br>(DESENHO TRISTE DA MÃE)</p>"
+          }
+        ]
     </div>
 
-    <div id="editor-modal" class="modal">
-        <div class="modal-content">
-            <h2 id="editor-title" style="margin-bottom:20px; font-family: 'Playfair Display'; color: var(--gold);">Editar</h2>
-            <div id="editor-fields"></div>
-            <div style="display: flex; gap: 10px; margin-top: 25px;">
-                <button class="btn-pill-purple" style="flex:1; padding: 12px;" onclick="saveData()">Salvar Alterações</button>
-                <button class="btn-pill-purple" style="background:transparent; border: 1px solid var(--gold); color: var(--gold); padding: 12px;" onclick="closeModals()">Cancelar</button>
-            </div>
-        </div>
-    </div>
+    <button id="btn-toggle-editor"><i class="fa-solid fa-wand-magic-sparkles"></i> Ativar Modo Editor</button>
 
-    <div class="staff-controls-panel">
-        <button class="staff-logout" title="Sair do Modo Staff" onclick="logoutStaff()">✕</button>
-        <button class="staff-trigger" title="Entrar no Modo Staff" onclick="openStaffLogin()">⚙️</button>
-    </div>
-
-    <script type="module">
-        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
-
-        const supabaseUrl = 'https://afrhflyibkjywsuefgno.supabase.co';
-        const supabaseKey = 'sb_publishable_oteHwr_i_hGi8SFBDzZCmA_K5z7hjG5'; 
+    <div id="painel-editor">
+        <h3 style="font-family:'Cinzel'; color:#b8860b; text-align:center; margin-bottom:10px;">Catálogo</h3>
+        <p style="font-size: 13px; color: #b8860b; margin-bottom: 15px; text-align: center; font-style: italic;">Clique na folha direita ou esquerda para selecionar, e depois adicione:</p>
         
-        let supabase = null;
-        try { supabase = createClient(supabaseUrl, supabaseKey); } 
-        catch(e) { console.error("Erro ao iniciar Supabase", e); }
-
-        let portfolio = {
-            title: "Sofia | Buuh",
-            tagline: "✦ Biblioteconomia • Narrativas • Pixels ✦",
-            profilePic: "https://i.pinimg.com/736x/7e/34/f4/7e34f4db31c4fd0a5eb0e7cf1f81d6ba.jpg",
-            about: "Estudante de Biblioteconomia na UFSC, transformando informação em mundos imaginários e pixels em arte.",
-            discord: "y_buuh",
-            categories: [
-                { id: 'lore', title: 'Escrita', icon: '📜', desc: 'Narrativas, lore e backgrounds.', samples: [], prices: [] },
-                { id: 'skins', title: 'Ateliê', icon: '✨', desc: 'Modelagem e texturização 3D.', samples: [], prices: [] }
-            ]
-        };
-
-        let currentView = 'home';
-        let editState = { type: null, targetId: null };
-
-        // Expondo funções
-        window.changeView = function(id, pushHistory = true) {
-            const container = document.getElementById('app-content');
-            container.classList.remove('visible');
-            setTimeout(() => {
-                currentView = id;
-                refreshView();
-                container.classList.add('visible');
-                if (pushHistory) history.pushState({ view: id }, "", "#" + id);
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            }, 400);
-        };
-
-        window.refreshView = refreshView;
-
-        function refreshView() {
-            if (currentView === 'home') renderHome();
-            else renderCategory(currentView);
-        }
-
-        function renderHome() {
-            const container = document.getElementById('app-content');
-            container.innerHTML = `
-                <header>
-                    <div class="editable-hover" onclick="if(document.body.classList.contains('is-staff')) window.openEditor('header')" title="Clique para editar cabeçalho">
-                        <h1>${portfolio.title}</h1>
-                        <p class="tagline">${portfolio.tagline}</p>
-                    </div>
-                </header>
-
-                <section class="glass-panel">
-                    <div class="profile-section">
-                        <div class="profile-img-container editable-hover" onclick="if(document.body.classList.contains('is-staff')) window.openEditor('profile')" title="Clique para editar foto">
-                            <img src="${portfolio.profilePic || 'https://via.placeholder.com/170/111/7b2cbf?text=Buuh'}" alt="Foto de Perfil">
-                        </div>
-                        <div style="flex-grow: 1;">
-                            <h2 class="sub-header">Sobre Mim</h2>
-                            <div class="editable-hover" style="opacity: 0.9; line-height: 1.6;" onclick="if(document.body.classList.contains('is-staff')) window.openEditor('profile')" title="Clique para editar sobre mim">
-                                ${portfolio.about}
-                            </div>
-                            <div class="staff-only staff-flex" style="margin-top: 25px; gap: 15px; flex-wrap: wrap;">
-                                <button class="btn-pill-purple" onclick="window.openEditor('header')">✏️ Titulo & Tagline</button>
-                                <button class="btn-pill-purple" onclick="window.openEditor('profile')">✏️ Foto & Bio</button>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <nav class="main-grid">
-                    ${portfolio.categories.map(cat => `
-                        <div class="nav-card" onclick="window.changeView('${cat.id}')">
-                            <div class="card-head">
-                                <span class="card-icon">${cat.icon}</span>
-                                <h3>${cat.title}</h3>
-                            </div>
-                            <div class="card-body">${cat.desc}</div>
-                            
-                            <div class="staff-only staff-flex" style="padding: 15px; border-top: 1px solid var(--glass-border); gap: 10px; justify-content: center;">
-                                <button class="btn-pill-purple" style="flex:1;" onclick="event.stopPropagation(); window.openEditor('edit-cat', '${cat.id}')">Editar</button>
-                                <button class="btn-pill-red" style="flex:1;" onclick="event.stopPropagation(); window.deleteCategory('${cat.id}')">Excluir</button>
-                            </div>
-                        </div>
-                    `).join('')}
-                    
-                    <div class="nav-card staff-only staff-flex" style="border: 1px dashed var(--gold); background: transparent; justify-content: center; min-height: 200px;" onclick="window.openEditor('add-cat')">
-                         <div class="card-head" style="border:none; padding-bottom: 0;">
-                             <span class="card-icon">+</span>
-                             <h3 style="color: var(--gold);">Nova Categoria</h3>
-                         </div>
-                    </div>
-                </nav>
-
-                <section style="text-align:center;">
-                    <div class="editable-hover" onclick="if(document.body.classList.contains('is-staff')) window.openEditor('discord')" style="background:var(--glass); display:inline-block; padding:15px 40px; border-radius:50px; border:1px solid var(--glass-border); backdrop-filter:blur(10px);">
-                        🎮 Discord: <strong style="color:var(--gold); margin-left: 5px;">${portfolio.discord}</strong>
-                    </div>
-                </section>
-                <footer>&copy; 2026 Buuh • made by @bl4ast</footer>
-            `;
-        }
-
-        function renderCategory(catId) {
-            const cat = portfolio.categories.find(c => c.id === catId);
-            if (!cat) return window.changeView('home');
-
-            // Renderiza as Amostras dependendo do tipo (Texto, Imagem, 3D)
-            let samplesHTML = cat.samples.map(s => {
-                let type = s.type || 'text'; // Fallback para categorias antigas
-                let adminBtn = `<div class="staff-only staff-flex" style="position:absolute; top:15px; right:15px; z-index:10;"><button class="btn-pill-red" onclick="window.deleteItem('${cat.id}', 'samples', ${s.id})">Remover</button></div>`;
-
-                if (type === 'text') {
-                    return `
-                    <div class="lore-entry">
-                        ${adminBtn}
-                        <div class="lore-thumb">📄</div>
-                        <div class="lore-details">
-                            <h4>${s.title}</h4>
-                            <p style="margin-bottom:15px; opacity:.8;">${s.desc}</p>
-                            ${s.url ? `<a href="${s.url}" target="_blank" style="color:var(--gold); text-decoration:none; font-weight:600;">Ver Trabalho ↗</a>` : ''}
-                        </div>
-                    </div>`;
-                } 
-                else if (type === 'image') {
-                    return `
-                    <div class="visual-entry">
-                        ${adminBtn}
-                        <img src="${s.url}" style="width:100%; height:300px; object-fit:cover; border-bottom: 1px solid var(--glass-border);">
-                        <div style="padding:20px;">
-                            <h4>${s.title}</h4>
-                            <p style="opacity:.8;">${s.desc}</p>
-                        </div>
-                    </div>`;
-                } 
-                else if (type === 'model3d') {
-                    // UTILIZANDO A TAG <model-viewer> COMO PEDISTE
-                    return `
-                    <div class="visual-entry">
-                        ${adminBtn}
-                        <model-viewer class="model-viewport" src="${s.url}" auto-rotate camera-controls shadow-intensity="1" alt="${s.title}"></model-viewer>
-                        <div style="padding:20px; text-align:center;">
-                            <h4>${s.title}</h4>
-                            <p style="opacity:.8;">${s.desc}</p>
-                            <small style="color:var(--purple-bright);">Arraste para rodar o modelo</small>
-                        </div>
-                    </div>`;
-                }
-            }).join('');
-
-            const container = document.getElementById('app-content');
-            container.innerHTML = `
-                <button class="btn-back" onclick="window.changeView('home')">← Regressar ao Início</button>
-                
-                <section class="glass-panel">
-                    <h2 class="sub-header">${cat.title}</h2>
-                    
-                    <div class="tabs-container">
-                        <button class="tab-btn active" onclick="window.switchTab(this,'tab-samples')">Amostras</button>
-                        <button class="tab-btn" onclick="window.switchTab(this,'tab-prices')">Valores</button>
-                    </div>
-
-                    <div id="tab-samples" class="tab-pane active">
-                        ${cat.samples.length === 0 ? '<p style="opacity:0.5; text-align:center; padding: 40px;">Ainda não existem amostras aqui.</p>' : ''}
-                        
-                        <div class="samples-grid">
-                            ${samplesHTML}
-                        </div>
-                        
-                        <div class="staff-only" style="margin-top: 30px; text-align: center;">
-                            <button class="btn-pill-purple" onclick="window.openEditor('add-sample', '${cat.id}')">+ Adicionar Amostra</button>
-                        </div>
-                    </div>
-
-                    <div id="tab-prices" class="tab-pane">
-                        ${cat.prices.length === 0 ? '<p style="opacity:0.5; text-align:center; padding: 40px;">Tabela de valores sob consulta.</p>' : ''}
-                        ${cat.prices.map(p => `
-                            <div class="price-row">
-                                <span>${p.label}</span>
-                                <div style="display: flex; align-items: center; gap: 15px;">
-                                    <strong style="color:var(--gold);">${p.price}</strong>
-                                    <button class="staff-only btn-pill-red" onclick="window.deleteItem('${cat.id}', 'prices', ${p.id})">X</button>
-                                </div>
-                            </div>
-                        `).join('')}
-                        <div class="staff-only" style="margin-top: 30px; text-align: center;">
-                            <button class="btn-pill-purple" onclick="window.openEditor('add-price', '${cat.id}')">+ Adicionar Preço</button>
-                        </div>
-                    </div>
-                </section>
-                <footer>&copy; 2026 Buuh • made by @bl4ast</footer>
-            `;
-        }
-
-        window.switchTab = function(btn, id) {
-            const panel = btn.closest('.glass-panel');
-            panel.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            panel.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-        };
-
-        // ==========================================
-        // STAFF & EDIÇÃO
-        // ==========================================
-        window.openStaffLogin = () => document.getElementById('login-modal').classList.add('active');
-        window.closeModals = () => document.querySelectorAll('.modal').forEach(m => m.classList.remove('active'));
+        <button class="ferramenta-btn" onclick="adicionarElemento('titulo')"><i class="fa-solid fa-heading" style="width:20px;"></i> Título</button>
+        <button class="ferramenta-btn" onclick="adicionarElemento('paragrafo')"><i class="fa-solid fa-align-left" style="width:20px;"></i> Parágrafo Normal</button>
+        <button class="ferramenta-btn" onclick="adicionarElemento('torto')"><i class="fa-solid fa-italic" style="width:20px;"></i> Texto Torto</button>
+        <button class="ferramenta-btn" onclick="adicionarElemento('rabisco')"><i class="fa-solid fa-pen-nib" style="width:20px;"></i> Citação Destaque</button>
+        <button class="ferramenta-btn" onclick="adicionarElemento('mancha')"><i class="fa-solid fa-droplet" style="width:20px;"></i> Mancha de Tinta</button>
         
-        window.checkStaff = function() {
-            if (document.getElementById('staff-pass').value.trim() === 'bl4astlindo') {
-                document.body.classList.add('is-staff');
-                window.closeModals();
-                document.getElementById('staff-pass').value = '';
-            } else { alert("Senha incorreta."); }
-        };
+        <label for="upload-imagem" class="ferramenta-btn" style="text-align:center;"><i class="fa-solid fa-image"></i> Upload Imagem</label>
+        <input type="file" id="upload-imagem" accept="image/*" onchange="processarUpload(event)">
+        
+        <hr style="opacity:0.2; margin:15px 0;">
+        <button class="ferramenta-btn" id="btn-borracha" onclick="toggleBorracha()" style="border-color: #ff4d4d; color: #ff4d4d; text-align: center;"><i class="fa-solid fa-eraser"></i> Ligar Borracha</button>
+        <button class="ferramenta-btn" onclick="adicionarNovaPagina()" style="text-align: center;"><i class="fa-solid fa-plus"></i> Nova Folha em Branco</button>
+        <button class="ferramenta-btn btn-salvar" onclick="salvarGrimorio()"><i class="fa-solid fa-download"></i> Salvar e Baixar Código</button>
+    </div>
 
-        window.logoutStaff = () => document.body.classList.remove('is-staff');
-
-        window.openEditor = function(type, targetId = null) {
-            editState = { type, targetId };
-            const modal = document.getElementById('editor-modal');
-            const title = document.getElementById('editor-title');
-            const fields = document.getElementById('editor-fields');
+    <div class="mesa" id="mesa-container">
+        <div class="livro" id="livro-principal">
             
-            if (type === 'header') {
-                title.innerText = "Textos Principais";
-                fields.innerHTML = `<label>Título do Site</label><input id="inp-title" value="${portfolio.title}"><label>Frase de Efeito (Tagline)</label><input id="inp-tag" value="${portfolio.tagline}">`;
-            } else if (type === 'profile') {
-                title.innerText = "Perfil";
-                fields.innerHTML = `<label>URL da Foto</label><input id="inp-pic" value="${portfolio.profilePic}"><label>Sobre Mim</label><textarea id="inp-about" rows="6">${portfolio.about}</textarea>`;
-            } else if (type === 'discord') {
-                title.innerText = "Contato";
-                fields.innerHTML = `<label>Usuário Discord</label><input id="inp-discord" value="${portfolio.discord}">`;
-            } else if (type === 'add-cat' || type === 'edit-cat') {
-                const isEdit = type === 'edit-cat';
-                const cat = isEdit ? portfolio.categories.find(c => c.id === targetId) : { title: '', icon: '', desc: '' };
-                title.innerText = isEdit ? "Editar Categoria" : "Nova Categoria";
-                fields.innerHTML = `<label>Título</label><input id="inp-cat-title" value="${cat.title}"><label>Ícone (Emoji)</label><input id="inp-cat-icon" value="${cat.icon}"><label>Descrição</label><input id="inp-cat-desc" value="${cat.desc}">`;
-            } else if (type === 'add-sample') {
-                title.innerText = "Adicionar Amostra";
-                fields.innerHTML = `
-                    <label>Tipo de Item</label>
-                    <select id="inp-sam-type">
-                        <option value="text">Texto / Lore / Documento</option>
-                        <option value="image">Imagem (Arte, Print, etc)</option>
-                        <option value="model3d">Modelo 3D (.gltf ou .glb)</option>
-                    </select>
-                    <label>Título</label><input id="inp-sam-title">
-                    <label>Resumo / Descrição</label><input id="inp-sam-desc">
-                    <label>URL (Link, Imagem ou arquivo .gltf)</label><input id="inp-sam-url" placeholder="https://...">
-                `;
-            } else if (type === 'add-price') {
-                title.innerText = "Adicionar Preço";
-                fields.innerHTML = `<label>Serviço</label><input id="inp-pr-label"><label>Valor</label><input id="inp-pr-val">`;
-            }
-            modal.classList.add('active');
-        };
-
-        window.saveData = async function() {
-            const { type, targetId } = editState;
-            if (type === 'header') {
-                portfolio.title = document.getElementById('inp-title').value;
-                portfolio.tagline = document.getElementById('inp-tag').value;
-            } else if (type === 'profile') {
-                portfolio.profilePic = document.getElementById('inp-pic').value;
-                portfolio.about = document.getElementById('inp-about').value;
-            } else if (type === 'discord') {
-                portfolio.discord = document.getElementById('inp-discord').value;
-            } else if (type === 'add-cat') {
-                portfolio.categories.push({ id: 'cat_' + Date.now(), title: document.getElementById('inp-cat-title').value, icon: document.getElementById('inp-cat-icon').value, desc: document.getElementById('inp-cat-desc').value, samples: [], prices: [] });
-            } else if (type === 'edit-cat') {
-                const cat = portfolio.categories.find(c => c.id === targetId);
-                cat.title = document.getElementById('inp-cat-title').value; cat.icon = document.getElementById('inp-cat-icon').value; cat.desc = document.getElementById('inp-cat-desc').value;
-            } else if (type === 'add-sample') {
-                const cat = portfolio.categories.find(c => c.id === targetId);
-                cat.samples.push({ 
-                    id: Date.now(), 
-                    type: document.getElementById('inp-sam-type').value,
-                    title: document.getElementById('inp-sam-title').value, 
-                    desc: document.getElementById('inp-sam-desc').value, 
-                    url: document.getElementById('inp-sam-url').value 
-                });
-            } else if (type === 'add-price') {
-                const cat = portfolio.categories.find(c => c.id === targetId);
-                cat.prices.push({ id: Date.now(), label: document.getElementById('inp-pr-label').value, price: document.getElementById('inp-pr-val').value });
-            }
-            window.closeModals();
-            await saveDB();
-            refreshView();
-        };
-
-        window.deleteCategory = async function(id) {
-            if (!confirm("Tem certeza que deseja apagar a categoria inteira?")) return;
-            portfolio.categories = portfolio.categories.filter(c => c.id !== id);
-            await saveDB(); refreshView();
-        };
-
-        window.deleteItem = async function(catId, type, itemId) {
-            if (!confirm("Remover este item?")) return;
-            const cat = portfolio.categories.find(c => c.id === catId);
-            cat[type] = cat[type].filter(i => i.id !== itemId);
-            await saveDB(); refreshView();
-        };
-
-        // ==========================================
-        // BANCO DE DADOS (SUPABASE)
-        // ==========================================
-        async function syncDB() {
-            if (!supabase) return;
-            try {
-                const { data, error } = await supabase.from('portfolio_data').select('content').eq('id', 'main').single();
-                if (data && data.content) portfolio = data.content;
-                else await supabase.from('portfolio_data').insert([{ id: 'main', content: portfolio }]);
-                refreshView();
+            <div class="capa-container" id="capa" onclick="abrirLivro()">
+                <div class="capa-frente">
+                    <div class="lombada-frente"></div>
+                    <i class="fa-solid fa-book-journal-whills" style="color:#b8860b; font-size:50px;"></i>
+                    <h1 class="titulo-capa" id="titulo-livro">O Arquivista</h1>
+                    <p class="subtitulo-capa" id="subtitulo-livro">Manuscritos</p>
+                </div>
                 
-                supabase.channel('custom-all-channel')
-                    .on('postgres_changes', { event: '*', schema: 'public', table: 'portfolio_data', filter: 'id=eq.main' }, (payload) => {
-                        portfolio = payload.new.content; refreshView(); 
-                    }).subscribe();
-            } catch (err) { console.error("Erro na leitura Supabase:", err); }
-        }
+                <div class="pagina capa-verso" id="pagina-esq" onclick="selecionarPagina('esq')">
+                    <div class="sombra-centro-esq"></div>
+                    <div class="conteudo-pagina" id="conteudo-esq"></div>
+                    <div class="zona-virar virar-esq" onclick="virarEsquerda(event)"><i class="fa-solid fa-chevron-left"></i></div>
+                </div>
+            </div>
 
-        async function saveDB() {
-            if (!supabase) return;
-            try { await supabase.from('portfolio_data').upsert({ id: 'main', content: portfolio }); } 
-            catch (err) { console.error("Erro ao salvar Supabase:", err); }
-        }
+            <div class="pagina pagina-direita" id="pagina-dir" onclick="selecionarPagina('dir')">
+                <div class="dobradica-clicavel" onclick="fecharLivro()" title="Fechar Livro"></div>
+                <div class="sombra-centro-dir"></div>
+                <div class="conteudo-pagina" id="conteudo-dir"></div>
+                <div class="zona-virar virar-dir" onclick="virarDireita(event)"><i class="fa-solid fa-chevron-right"></i></div>
+            </div>
 
-        // ==========================================
-        // FUNDO ANIMADO
-        // ==========================================
-        const canvas = document.getElementById('star-canvas');
-        const ctx = canvas.getContext('2d');
-        let particles = [];
-        function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
-        window.addEventListener('resize', resizeCanvas);
-        function createParticles() {
-            particles = [];
-            for (let i = 0; i < 220; i++) {
-                particles.push({
-                    x: Math.random() * window.innerWidth, y: Math.random() * window.innerHeight,
-                    radius: Math.random() * 2.2, speed: Math.random() * 0.4 + 0.05, opacity: Math.random(), hue: 260 + Math.random() * 30
-                });
+        </div>
+    </div>
+
+    <script>
+        // Livro começa FECHADO
+        let livroAberto = false;
+        let modoEditor = false;
+        let modoBorracha = false;
+        let animando = false; 
+        let spreadAtual = 0;
+        let paginaSelecionadaId = 'conteudo-esq';
+        let paginasData = JSON.parse(document.getElementById('data-storage').textContent);
+
+        function abrirLivro() {
+            if(!livroAberto) {
+                document.body.classList.add('livro-aberto');
+                document.getElementById('mesa-container').style.transform = 'translateX(250px)';
+                livroAberto = true;
+                
+                // Carrega o conteúdo estilizado ao abrir a capa
+                document.getElementById('conteudo-esq').innerHTML = paginasData[spreadAtual].esq;
+                document.getElementById('conteudo-dir').innerHTML = paginasData[spreadAtual].dir;
+                atualizarModoEditorConteudo();
             }
         }
-        function animateStars() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            particles.forEach(p => {
-                p.y -= p.speed;
-                if (p.y < -5) { p.y = window.innerHeight + 5; p.x = Math.random() * window.innerWidth; }
-                ctx.beginPath(); ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-                ctx.fillStyle = `hsla(${p.hue}, 100%, 75%, ${p.opacity})`;
-                ctx.shadowBlur = 15; ctx.shadowColor = `hsl(${p.hue}, 100%, 70%)`; ctx.fill();
-            });
-            requestAnimationFrame(animateStars);
+
+        function fecharLivro() {
+            if(livroAberto && !animando) {
+                salvarEstadoAtual();
+                document.body.classList.remove('livro-aberto');
+                document.getElementById('mesa-container').style.transform = 'translateX(0)';
+                livroAberto = false;
+                if(modoEditor) document.getElementById('btn-toggle-editor').click();
+            }
         }
 
-        // ==========================================
-        // INIT
-        // ==========================================
-        window.onpopstate = (e) => {
-            const viewId = (e.state && e.state.view) ? e.state.view : 'home';
-            window.changeView(viewId, false);
-        };
+        function animarMudancaPagina(direcao) {
+            if (animando) return;
+            salvarEstadoAtual();
+            
+            let novoSpread = spreadAtual + direcao;
+            animando = true;
 
-        window.addEventListener('DOMContentLoaded', async () => {
-            resizeCanvas(); createParticles(); animateStars();
-            await syncDB();
-            const hash = location.hash.replace('#', '');
-            if (hash && hash !== 'home') window.changeView(hash, false);
-            else window.changeView('home', false);
+            const flipEl = document.createElement('div');
+            flipEl.className = 'flip-page';
+            
+            const frente = document.createElement('div');
+            frente.className = 'flip-frente';
+            
+            const verso = document.createElement('div');
+            verso.className = 'flip-verso';
+
+            flipEl.appendChild(frente);
+            flipEl.appendChild(verso);
+            document.getElementById('livro-principal').appendChild(flipEl);
+
+            if (direcao === 1) { 
+                frente.innerHTML = '<div class="sombra-centro-dir"></div><div class="conteudo-pagina">' + paginasData[spreadAtual].dir + '</div>';
+                verso.innerHTML = '<div class="sombra-centro-esq"></div><div class="conteudo-pagina">' + paginasData[novoSpread].esq + '</div>';
+
+                document.getElementById('conteudo-dir').innerHTML = paginasData[novoSpread].dir;
+
+                void flipEl.offsetWidth; 
+                flipEl.style.transform = 'rotateY(-180deg)';
+
+                setTimeout(() => {
+                    document.getElementById('conteudo-esq').innerHTML = paginasData[novoSpread].esq;
+                    flipEl.remove();
+                    spreadAtual = novoSpread;
+                    animando = false;
+                    atualizarModoEditorConteudo();
+                }, 800);
+
+            } else { 
+                flipEl.style.transform = 'rotateY(-180deg)'; 
+                frente.innerHTML = '<div class="sombra-centro-dir"></div><div class="conteudo-pagina">' + paginasData[novoSpread].dir + '</div>';
+                verso.innerHTML = '<div class="sombra-centro-esq"></div><div class="conteudo-pagina">' + paginasData[spreadAtual].esq + '</div>';
+
+                document.getElementById('conteudo-esq').innerHTML = paginasData[novoSpread].esq;
+
+                void flipEl.offsetWidth;
+                flipEl.style.transform = 'rotateY(0deg)'; 
+
+                setTimeout(() => {
+                    document.getElementById('conteudo-dir').innerHTML = paginasData[novoSpread].dir;
+                    flipEl.remove();
+                    spreadAtual = novoSpread;
+                    animando = false;
+                    atualizarModoEditorConteudo();
+                }, 800);
+            }
+        }
+
+        function virarEsquerda(e) {
+            e.stopPropagation();
+            if (spreadAtual > 0) animarMudancaPagina(-1);
+            else fecharLivro(); 
+        }
+
+        function virarDireita(e) {
+            e.stopPropagation();
+            if (spreadAtual < paginasData.length - 1) {
+                animarMudancaPagina(1);
+            } else {
+                if(modoEditor) {
+                    if(confirm("Fim do grimório. Deseja criar uma nova folha em branco?")) adicionarNovaPagina();
+                } else {
+                    alert("Você chegou ao fim dos registros.");
+                }
+            }
+        }
+
+        // ====== SALVAMENTO SEGURO (CLONES) ======
+        function salvarEstadoAtual() {
+            if(!livroAberto) return;
+            
+            // Usando clones para não bugar o editor visual enquanto salva
+            const cloneEsq = document.getElementById('conteudo-esq').cloneNode(true);
+            const cloneDir = document.getElementById('conteudo-dir').cloneNode(true);
+
+            // Remove a tag de edição do clone para salvar limpo
+            cloneEsq.querySelectorAll('[contenteditable]').forEach(el => el.removeAttribute('contenteditable'));
+            cloneDir.querySelectorAll('[contenteditable]').forEach(el => el.removeAttribute('contenteditable'));
+
+            paginasData[spreadAtual].esq = cloneEsq.innerHTML;
+            paginasData[spreadAtual].dir = cloneDir.innerHTML;
+        }
+
+        // ====== SELEÇÃO DE PÁGINA (CLIQUE NAS PÁGINAS) ======
+        // Garante que clicar no texto seleciona a página
+        document.getElementById('conteudo-esq').addEventListener('click', () => selecionarPagina('esq'));
+        document.getElementById('conteudo-dir').addEventListener('click', () => selecionarPagina('dir'));
+
+        function selecionarPagina(lado) {
+            if(!modoEditor || modoBorracha || animando) return;
+            document.getElementById('pagina-esq').classList.remove('pagina-ativa');
+            document.getElementById('pagina-dir').classList.remove('pagina-ativa');
+            document.getElementById(lado === 'esq' ? 'pagina-esq' : 'pagina-dir').classList.add('pagina-ativa');
+            paginaSelecionadaId = lado === 'esq' ? 'conteudo-esq' : 'conteudo-dir';
+        }
+
+        function toggleBorracha() {
+            if(!livroAberto) return;
+            modoBorracha = !modoBorracha;
+            const btn = document.getElementById('btn-borracha');
+            if(modoBorracha) {
+                btn.style.backgroundColor = '#ff4d4d';
+                btn.style.color = '#fff';
+                btn.innerHTML = '<i class="fa-solid fa-eraser"></i> Borracha Ativa (Clique num item)';
+                document.body.classList.add('cursor-borracha');
+                document.getElementById('pagina-esq').classList.remove('pagina-ativa');
+                document.getElementById('pagina-dir').classList.remove('pagina-ativa');
+            } else {
+                btn.style.backgroundColor = 'transparent';
+                btn.style.color = '#ff4d4d';
+                btn.innerHTML = '<i class="fa-solid fa-eraser"></i> Ligar Borracha';
+                document.body.classList.remove('cursor-borracha');
+                selecionarPagina(paginaSelecionadaId === 'conteudo-esq' ? 'esq' : 'dir');
+            }
+        }
+
+        document.addEventListener('click', function(e) {
+            if(modoBorracha && modoEditor) {
+                const alvo = e.target.closest('.conteudo-pagina > *'); 
+                if(alvo && !alvo.classList.contains('sombra-centro-esq') && !alvo.classList.contains('sombra-centro-dir')) {
+                    alvo.remove();
+                    salvarEstadoAtual();
+                }
+            }
         });
+
+        document.getElementById('btn-toggle-editor').addEventListener('click', function() {
+            modoEditor = !modoEditor;
+            document.getElementById('painel-editor').classList.toggle('aberto');
+            document.body.classList.toggle('modo-editor');
+            
+            document.getElementById('titulo-livro').contentEditable = modoEditor;
+            document.getElementById('subtitulo-livro').contentEditable = modoEditor;
+            
+            atualizarModoEditorConteudo();
+            
+            if(!modoEditor) {
+                if(modoBorracha) toggleBorracha(); 
+                document.getElementById('pagina-esq').classList.remove('pagina-ativa');
+                document.getElementById('pagina-dir').classList.remove('pagina-ativa');
+            } else {
+                selecionarPagina('esq');
+            }
+        });
+
+        function atualizarModoEditorConteudo() {
+            // Edição Global (o navegador lida com os parágrafos sem quebrar as classes)
+            const pEsq = document.getElementById('conteudo-esq');
+            const pDir = document.getElementById('conteudo-dir');
+            
+            pEsq.contentEditable = modoEditor ? "true" : "false";
+            pDir.contentEditable = modoEditor ? "true" : "false";
+
+            // Protege imagens e manchas de serem tratadas como texto
+            document.querySelectorAll('.elemento-arrastavel').forEach(el => {
+                el.contentEditable = "false";
+            });
+        }
+
+        function adicionarElemento(tipo) {
+            if(!livroAberto || modoBorracha || animando) return;
+            const destino = document.getElementById(paginaSelecionadaId);
+            let html = '';
+
+            if (tipo === 'titulo') html = '<h2 class="titulo-manuscrito">Novo Título</h2>';
+            if (tipo === 'paragrafo') html = '<p class="paragrafo-normal">Escreva aqui...</p>';
+            if (tipo === 'torto') html = '<p class="torto">Anotação com pressa...</p>';
+            if (tipo === 'rabisco') html = '<p class="torto-direito destaque">"Revelação!"</p>';
+            if (tipo === 'mancha') {
+                const size = Math.floor(Math.random() * 40) + 20;
+                const r1 = Math.floor(Math.random() * 60) + 20;
+                const r2 = Math.floor(Math.random() * 60) + 20;
+                const r3 = Math.floor(Math.random() * 60) + 20;
+                const r4 = Math.floor(Math.random() * 60) + 20;
+                const rot = Math.floor(Math.random() * 360);
+                html = `<div class="mancha-tinta elemento-arrastavel" style="width: ${size}px; height: ${size * (Math.random()*0.5 + 0.8)}px; border-radius: ${r1}% ${r2}% ${r3}% ${r4}%; transform: rotate(${rot}deg); top: 150px; left: 100px;"></div>`;
+            }
+
+            destino.insertAdjacentHTML('beforeend', html);
+            atualizarModoEditorConteudo();
+            salvarEstadoAtual();
+        }
+
+        function adicionarNovaPagina() {
+            if (animando) return;
+            salvarEstadoAtual();
+            paginasData.push({ esq: "", dir: "" });
+            animarMudancaPagina(1); 
+        }
+
+        function processarUpload(event) {
+            const file = event.target.files[0];
+            if(!file) return;
+            const reader = new FileReader();
+            reader.onload = e => {
+                const imgHTML = `<img src="${e.target.result}" class="imagem-customizada elemento-arrastavel" style="top: 100px; left: 100px;">`;
+                document.getElementById(paginaSelecionadaId).insertAdjacentHTML('beforeend', imgHTML);
+                salvarEstadoAtual();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // ====== DRAG & DROP SUAVE ======
+        let dragInfo = null;
+
+        document.addEventListener('mousedown', function(e) {
+            if (modoBorracha || animando) return; 
+            
+            let alvoArrastar = e.target.closest('.elemento-arrastavel');
+            if (modoEditor && alvoArrastar) {
+                dragInfo = {
+                    el: alvoArrastar,
+                    startX: e.clientX,
+                    startY: e.clientY,
+                    initLeft: alvoArrastar.offsetLeft,
+                    initTop: alvoArrastar.offsetTop
+                };
+                alvoArrastar.style.cursor = 'grabbing';
+                e.preventDefault();
+            }
+        });
+
+        document.addEventListener('mousemove', function(e) {
+            if (dragInfo) {
+                let dx = e.clientX - dragInfo.startX;
+                let dy = e.clientY - dragInfo.startY;
+                dragInfo.el.style.left = (dragInfo.initLeft + dx) + 'px';
+                dragInfo.el.style.top = (dragInfo.initTop + dy) + 'px';
+            }
+        });
+
+        document.addEventListener('mouseup', function() {
+            if (dragInfo) {
+                dragInfo.el.style.cursor = 'grab';
+                dragInfo = null;
+                salvarEstadoAtual();
+            }
+        });
+
+        // ====== SALVAR E BAIXAR ======
+        function salvarGrimorio() {
+            salvarEstadoAtual();
+            if (modoEditor) document.getElementById('btn-toggle-editor').click(); 
+
+            let html = document.documentElement.outerHTML;
+            const novoData = `<div id="data-storage" style="display: none;">\n${JSON.stringify(paginasData)}\n</div>`;
+            html = html.replace(/<div id="data-storage" style="display: none;">[\s\S]*?<\/div>/, novoData);
+            
+            const blob = new Blob(["<!DOCTYPE html>\n" + html], { type: "text/html" });
+            const a = document.createElement("a");
+            a.href = URL.createObjectURL(blob);
+            a.download = "meu_manuscrito.html";
+            a.click();
+        }
     </script>
 </body>
 </html>
