@@ -1,14 +1,60 @@
-
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
+    <style id="security-lock"> html { display: none !important; } </style>
+    <script>
+        (function() {
+            // Defina o domínio exato autorizado
+            const allowedDomain = "port-buuh.vercel.app";
+            const currentDomain = window.location.hostname;
+            
+            // DICA: Se você precisar testar o site no seu computador antes de enviar para a Vercel,
+            // apague as duas barras "//" do início da linha abaixo para liberar o localhost temporariamente:
+            // const isLocal = currentDomain === "localhost" || currentDomain === "127.0.0.1" || currentDomain === "";
+            
+            // Verificação principal
+            if (currentDomain === allowedDomain /* || isLocal */) {
+                // Domínio autorizado: Remove a trava e carrega o site normalmente
+                document.documentElement.style.display = '';
+                document.addEventListener('DOMContentLoaded', () => {
+                    const lockStyle = document.getElementById('security-lock');
+                    if(lockStyle) lockStyle.remove();
+                });
+            } else {
+                // Domínio não autorizado: Substitui o site pela tela de bloqueio
+                document.addEventListener('DOMContentLoaded', () => {
+                    // Apaga todo o HTML original para impedir o roubo do conteúdo via Inspecionar Elemento
+                    document.body.innerHTML = '';
+                    
+                    // Injeta a tela de bloqueio
+                    const blockScreen = document.createElement('div');
+                    blockScreen.innerHTML = `
+                        <div style="position:fixed; inset:0; background:#050208; z-index:99999999; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:20px; font-family:'Poppins', sans-serif;">
+                            <div style="width: 90px; height: 90px; border-radius: 50%; border: 2px solid #ff4d4d; display:flex; align-items:center; justify-content:center; margin-bottom: 25px; box-shadow: 0 0 40px rgba(255,77,77,0.2);">
+                                <i class="fa-solid fa-lock" style="font-size: 35px; color: #ff4d4d;"></i>
+                            </div>
+                            <h1 style="font-family:'Playfair Display', serif; color:#ff4d4d; text-shadow:0 0 20px rgba(255,77,77,0.5); font-size:clamp(2.5rem, 8vw, 4rem); margin-bottom:15px; line-height: 1;">Acesso Restrito</h1>
+                            <p style="color:#e0d7ff; font-size:1.1rem; opacity:0.8; max-width:500px; line-height:1.6; margin-bottom: 35px;">
+                                Um sistema de segurança impediu o carregamento desta página.<br>O portfólio só pode ser visualizado através do seu domínio oficial.
+                            </p>
+                            <a href="https://port-buuh.vercel.app/" style="padding:15px 40px; background:linear-gradient(45deg, #7b2cbf, #9d4edd); color:white; text-decoration:none; border-radius:30px; font-weight:600; box-shadow:0 10px 25px rgba(123,44,191,0.4); transition:all 0.3s; letter-spacing: 2px; text-transform: uppercase; font-size: 0.9rem;">
+                                Acessar Site Oficial
+                            </a>
+                        </div>
+                    `;
+                    document.body.appendChild(blockScreen);
+                    document.documentElement.style.display = ''; // Exibe apenas a tela de bloqueio
+                });
+            }
+        })();
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sofia | Buuh - Portfólio Estelar</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- MODEL VIEWER EM VEZ DO THREE.JS -->
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
 
     <style>
